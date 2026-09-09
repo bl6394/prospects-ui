@@ -1,0 +1,6 @@
+sprints:
+  - id: SPRINT-0001
+    title: Day Pass single-flow checkout in Online Join (UI + BFF)
+    status: planned
+    created: "2026-09-09T22:40:56+00:00"
+    updated: "2026-09-09T22:40:56+00:00"

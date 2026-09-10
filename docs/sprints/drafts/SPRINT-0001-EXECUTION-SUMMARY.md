@@ -35,6 +35,8 @@ E1 ✅ `npm run demo:short-term-pass` (eight mock runs + reload checks, 47/47 ch
 | online-join-bff | `690dd3e` | Sprint 0001 Phase E: scripted local demo of the Day Pass checkout (s2) |
 | online-join-ui | `fcf9b9d` | Sprint 0001 Phase A: short-term pass route shell, scoped design tokens, dt primitives (s1) |
 | online-join-ui | `9753a70` | Sprint 0001 Phase D: Day Pass UI flow per the Riverside demos (identify, verify, recognized, new visitor, done) (s2) |
+| online-join-bff | `db81011` | Sprint 0001 fix: return the order shell on the newVisitor identify outcome; prettier (orchestrator review, 2026-09-10) |
+| online-join-ui | `a3c61b6` | Sprint 0001 fix: new-visitor terms checkbox and phone-width header (orchestrator review, 2026-09-10) |
 
 Base SHAs: BFF `bc8a4bd`, UI `f3242b1`. Both working trees are clean after the commits. `repos/mico` untouched; `wallet-repos` untouched.
 
@@ -61,12 +63,12 @@ No threshold was lowered and no exclusion added. `tsc --noEmit` in the UI still 
 |---|---|---|
 | G0 Ready | **met** (owners still to be named) | contract frozen with SHAs and the server patch; A6 spikes recorded; LD flag requested (B2); env in `.env.example` |
 | G1 Product flow | **met locally** | demo runs 1–8 + purchase/identify/verify suites cover U2–U18 through the BFF with state inspection; both save variants; next visit by secondary contact |
-| G2 Prototype parity | **pending design sign-off** | every copy string, masking and disabled state is test-pinned (`docs/validation/short-term-pass-ui.md`); deviations listed there; the 1440/375 px visual pass was not performed |
+| G2 Prototype parity | **visual pass done (orchestrator, 2026-09-10); design sign-off by a named owner pending** | every copy string, masking and disabled state is test-pinned; headless-Chrome screenshots at 1440/375 px for every screen in `docs/validation/screenshots/sprint-0001/` and the table in `docs/validation/short-term-pass-ui.md`; two defects found and fixed (`db81011`, `a3c61b6`) |
 | G3 Identity boundary | **met** | C6 + B7 suites: payload scan, owner by bound member UUID / MEMBER / org, existing-owner reuse, call order, hostile bodies, entry ownership, cross-checkout/club refusal, no pre-verify disclosure, limits, redaction |
 | G4 PCI boundary | **pending: mock demo complete; hosted capture unverified** | static PCI scan and `/purchases` schema rejections pass; `PlatformPayPageSessionReader` unit-tested; no real Pay Page dev run (B1) |
 | G5 Transaction integrity | **met** | ordered orchestration, no-save persistence, every failure boundary, idempotent replay, 409 on payload change, concurrent attempt refused, wallet-retry never re-authorizes, truthful statuses (`purchase.test.ts`, `idempotency.test.ts`) |
 | G6 Dark and isolated | **met** | 404 on every pass route when the gate fails; production refuses mock/override/faults; existing signup, guest and Pay Page suites green; generic Pay Page routes refuse pass sessions; SCSS isolation test |
-| G7 Quality | **met (numbers above), minus the manual browser check** | lint/build clean in both repos; coverage above floors; nothing lowered |
+| G7 Quality | **met** (numbers re-verified by the orchestrator after the fixes; browser check done) | lint/build clean in both repos; coverage above floors; nothing lowered |
 | G8 Operable local delivery | **met** | deterministic demo with capability report; faults reproducible via the switch; redacted correlation logs; readiness register with owner slots |
 
 Live gates L1–L5 remain open by design (contract §10).
@@ -75,7 +77,7 @@ Live gates L1–L5 remain open by design (contract §10).
 
 1. **B1 — Pay Page dev credentials.** Add `PAY_PAGE_API_URL`, `PAY_PAGE_CLIENT_ID`, `PAY_PAGE_CLIENT_SECRET`, `PAY_PAGE_CONSUMER_ID`, `PAY_PAGE_ORIGIN`, `ABC_CORE_API_URL` to `repos/online-join-bff/.env`, run `npm run demo:short-term-pass -- --hosted`, complete the hosted form in a browser, and record the run to close G4.
 2. **B2 — LaunchDarkly flag** `oj-short-term-pass-checkout` (club kind, default off) must be created by someone with write access; local runs use `STP_LOCAL_FLAG_OVERRIDE=true`.
-3. **Manual browser check** of `http://localhost:3000/signup/day-pass?club=90030` and the existing signup route at 1440 and 375 px (design gate G2 / quality gate G7); both dev servers are running with the sprint code.
+3. ~~Manual browser check~~ **Done 2026-09-10** by the orchestrator with headless Chrome (see `docs/validation/short-term-pass-ui.md` → Visual pass). Remaining for G2: a named design owner reviews the screenshots and the deviation list.
 4. **Planning-repo commit.** Uncommitted deliverables: `docs/contracts/short-term-pass-bff.md`, `docs/demos/short-term-pass-local-demo.md`, `docs/validation/short-term-pass-{bff,ui}.md`, `docs/sprints/drafts/SPRINT-0001-BLOCKERS.md`, this summary, `docs/SEMANTIC-INDEX.md`, `docs/sprints/ledger.yaml`, the L1 touch-up in `docs/sprints/SPRINT-0001.md`, plus the addendum and demo HTML files that were already untracked.
 5. **Push / PRs** for `prospect-wallet/sprint-0001` in both repos (not done by instruction).
 6. **Owners** for gates and OQ-1…OQ-9 at kickoff; the readiness register (contract §10) lists the slot per capability.

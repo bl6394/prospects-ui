@@ -48,3 +48,24 @@
 - Fine print on the identify/verify steps uses the plan's U2 sentence ("No membership. No recurring billing. Change plan any time before you pay."); the new-visitor step uses "Defaults to today — pick another day…"; receipt fine print omits "Your card stays on file…" when the card was not saved (truthful copy).
 - "Restart demo", the browser-chrome frame and the "Behind the scenes" panel are not implemented by decision.
 - A hosted-form "ready" state before a token exists is represented by the mounted embed (Pay Page gives no onLoad callback through `PayPageEmbed`); `submit()` rejecting is reported as "Please complete the card details."
+
+## Visual pass (orchestrator, 2026-09-10, headless Chrome via puppeteer-core against the local BFF on :3000)
+
+Screenshots in `docs/validation/screenshots/sprint-0001/` (full-page, 1440×900 and 375×812 viewports). Driven end to end through the real router and mock adapters; the numbered files follow the flow.
+
+| Shot | Screen | Result |
+|---|---|---|
+| 01 | Identify, 1440 and 375 | Matches the Riverside demo: heading, help line, one field, Continue; sidebar shows the line item, "Pick a day" defaulting to today, Total, fine print. **375: fixed** — the header previously overflowed the viewport (page scrolled horizontally, brand wrapped to three lines); it now wraps to brand + Secure checkout on the first row and a scrollable nav row. |
+| 02 | Verify (own step) | "Check your email", masked address, six inputs, Resend with cooldown, "Text me instead", Start over, disabled Verify; mock code hint shown in mock mode only. |
+| 03 | Recognized, 1440 and 375 | Welcome banner, Your info with masking per typed channel, saved card chip, Use a different card, terms checkbox, disabled Pay; sidebar adds Paying with and the "Valid …" fine print. |
+| 04 | Terms modal | Close and Agree and close; Agree enables Pay. |
+| 05 | Done (returning), 1440 and 375 | URL moved to `/signup/pass?club=90030`; QR pass block, saved-card pill, "Next time…" copy, Get the Riverside app, Start again; sidebar Receipt with Paid with / Paid. |
+| 06–07 | New visitor, 1440 and 375 | Header with contact + Edit, names, optional second contact, mock test-card select, save toggle, terms checkbox, Pay. |
+| 08 | Done (first visit) | "You're in, Alex", texted to the masked mobile, card saved pill. |
+| 09 | Start again | Back on `/signup/day-pass`, identify screen with the last contact prefilled. |
+| 10 | Identify error | Help line becomes the red error, field outlined. |
+| 11 | Legacy signup `/signup/plan?club=09003` | Renders as before; the page contains 0 `dt-*` elements and `:root` carries no `--ig-*` variable (checked in-page). |
+
+**Defect found and fixed during the pass:** on the new-visitor step the terms checkbox was disabled, so only the modal could accept terms and Pay stayed disabled. Cause: `PayBar` disabled the checkbox while the slice had no `order`, and the new-visitor identify response carried no order even though the BFF had created the order shell. Fix: the BFF returns `order` on the `newVisitor` outcome, the slice stores it, and the checkbox is disabled only while submitting. Route, slice and component tests updated.
+
+**Not covered by this pass:** real Pay Page hosted fields (mock capture used; gate G4 still pending B1); design sign-off by a named owner (G2 evidence is now available for that review).

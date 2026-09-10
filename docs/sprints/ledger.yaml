@@ -3,16 +3,17 @@ sprints:
     title: Day Pass single-flow checkout in Online Join (UI + BFF)
     status: in-progress
     created: "2026-09-09T22:40:56+00:00"
-    updated: "2026-09-10T06:30:00+00:00"
+    updated: "2026-09-10T09:10:00+00:00"
     execution:
       executor: "Claude Fable 5.1 (two sessions, 2026-09-09/10)"
       branches:
         online-join-ui: prospect-wallet/sprint-0001
         online-join-bff: prospect-wallet/sprint-0001
       phases_complete: [A, B, C, D, E]
+      review_fixes: ["online-join-bff db81011", "online-join-ui a3c61b6"]
       quality:
         online-join-bff: "lint 0 errors; build ok; 58 suites / 481 tests; coverage 97.52% stmts, 85.81% branches, 95.13% funcs, 98.04% lines (floors 84/67/67/84)"
         online-join-ui: "lint 0 errors; build ok; 100 suites (99 pass, 1 pre-existing tz-dependent failure); 578 tests (577 pass); coverage 92.97% stmts, 82.18% branches, 87.55% funcs, 92.97% lines (floors 80/80)"
       demo: "npm run demo:short-term-pass — 47/47 checks; --hosted BLOCKED (B1)"
-      gates: "G0 G1 G3 G5 G6 G7 G8 met locally; G2 pending design visual pass; G4 pending: mock demo complete, hosted capture unverified"
+      gates: "G0 G1 G3 G5 G6 G7 G8 met; G2 visual pass done 2026-09-10 (design sign-off pending); G4 pending: mock demo complete, hosted capture unverified (B1)"
       summary: docs/sprints/drafts/SPRINT-0001-EXECUTION-SUMMARY.md

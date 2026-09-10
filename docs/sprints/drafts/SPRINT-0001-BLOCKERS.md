@@ -56,3 +56,11 @@ Verified with the dev SDK key: `boolVariationDetail` returns `FLAG_NOT_FOUND` �
 - **Fixture club numbers.** A fourth fixture club (`90033`, Core South) was added so the Core offer survives the Riverside default without displacing the closed/terms fixtures.
 - **Completion URL.** `PAGES.shortTermPassDone = '/pass'` was added and `App.tsx` routes both `/signup/day-pass` and `/signup/pass` to the pass shell (the demos move the URL to `…/pass` on completion); the plan named only `/signup/day-pass`.
 - **Demo runs.** Executed as eight mock runs plus reload checks (the plan said six): the extra runs are the decline-then-recover path and the wallet-failure → wallet-retry path. The hosted run exists behind `--hosted` and reports BLOCKED (B1).
+
+## Review notes (orchestrator, 2026-09-10)
+
+- **Defect fixed:** new-visitor terms checkbox disabled (Pay unreachable except via the modal). BFF now returns the order shell on the `newVisitor` identify outcome; UI stores it and no longer gates the checkbox on `order`. Found by the headless visual pass, not by the suites — the PayBar tests always rendered with an order present.
+- **Defect fixed:** header overflowed the viewport at 375 px (horizontal page scroll, brand wrapping). Header now wraps at ≤640 px with the nav on its own scrollable row.
+- **Formatting:** 19 sprint files in the BFF did not match the repo's prettier config. The repo enforces prettier through husky + lint-staged on commit, but the hook was never installed in this clone (dependencies were installed with `--ignore-scripts`, so `prepare`/`husky install` did not run) and the executor's commits bypassed it. Files reformatted; the UI sprint files already matched. Recommendation: run `npm run prepare` in the BFF clone before further commits.
+- `dist/.tsbuildinfo` removed from the UI branch history (phase A commit rewritten; hashes changed to `fcf9b9d` / `9753a70`).
+- Pre-existing, observed on the legacy signup page during the pass: `GET /api/pay-page/club-feature-flag` returns 500 locally (Pay Page credentials absent, B1) and an external avatar image fails to load. Not sprint work.

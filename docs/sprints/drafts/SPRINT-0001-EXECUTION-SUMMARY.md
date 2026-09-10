@@ -2,7 +2,7 @@
 
 **Sprint:** Day Pass single-flow checkout in Online Join (UI + BFF), `docs/sprints/SPRINT-0001.md` (revised 2026-09-09 with the Riverside addendum).
 **Executor:** Claude Fable 5.1 — session 1 (2026-09-09: phases A and B) and session 2 (2026-09-09/10: phases C, D, E, resumed after the requirements addendum).
-**Branches:** `prospect-wallet/sprint-0001` in `repos/online-join-ui` and `repos/online-join-bff`. Not pushed; no PRs opened. Planning-repo deliverables are left uncommitted at the repo root for the orchestrator.
+**Branches:** `prospect-wallet/sprint-0001` in `repos/online-join-ui` and `repos/online-join-bff`. Pushed 2026-09-10; PRs: BFF #96, UI #524 (both against `main`). Planning-repo deliverables are left uncommitted at the repo root for the orchestrator.
 **Completion vocabulary:** *sprint implementation complete; local checkout complete; live integration blocked.* G4: *mock demo complete; hosted capture unverified.*
 
 ## 1. Tasks completed per phase
@@ -79,7 +79,7 @@ Live gates L1–L5 remain open by design (contract §10).
 2. **B2 — LaunchDarkly flag** `oj-short-term-pass-checkout` (club kind, default off) must be created by someone with write access; local runs use `STP_LOCAL_FLAG_OVERRIDE=true`.
 3. ~~Manual browser check~~ **Done 2026-09-10** by the orchestrator with headless Chrome (see `docs/validation/short-term-pass-ui.md` → Visual pass). Remaining for G2: a named design owner reviews the screenshots and the deviation list.
 4. **Planning-repo commit.** Uncommitted deliverables: `docs/contracts/short-term-pass-bff.md`, `docs/demos/short-term-pass-local-demo.md`, `docs/validation/short-term-pass-{bff,ui}.md`, `docs/sprints/drafts/SPRINT-0001-BLOCKERS.md`, this summary, `docs/SEMANTIC-INDEX.md`, `docs/sprints/ledger.yaml`, the L1 touch-up in `docs/sprints/SPRINT-0001.md`, plus the addendum and demo HTML files that were already untracked.
-5. **Push / PRs** for `prospect-wallet/sprint-0001` in both repos (not done by instruction).
+5. ~~Push / PRs~~ **Done 2026-09-10:** branches pushed; PRs against `main` — BFF https://github.com/abcfinancial/online-join-bff/pull/96, UI https://github.com/abcfinancial/online-join-ui/pull/524.
 6. **Owners** for gates and OQ-1…OQ-9 at kickoff; the readiness register (contract §10) lists the slot per capability.
 7. **Pre-existing defects observed, not fixed:** `rawBodyCapture` breaks JSON bodies for `/api/*` routes other than `/api/pay-page/` and `/api/short-term-pass/`; the UI `transformers.test.ts` month-label test is timezone-dependent; UI `tsc --noEmit` has 25 pre-existing errors in PaymentPage tests.
 8. **Scope changes to acknowledge** (blockers file "Scope changes"): two extra BFF routes (`GET /checkouts/:id/capture`, mock-only `POST /checkouts/:id/capture/mock`); `PAYMENT_DECLINED` reported inside the 2xx `PurchaseResult` instead of a 402 envelope; fixture club `90033`; completion URL `/signup/pass`; eight demo runs instead of six.

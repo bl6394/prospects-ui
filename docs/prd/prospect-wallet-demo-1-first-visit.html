@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prospect Wallet · Demo 1 — First visit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3F6FA; --surface:#FFFFFF; --surface-2:#EAF0F6; --border:#D8E0E8;
+    --text:#231F20; --text-soft:#5B6672; --muted:#75707D;
+    --accent:#0073BA; --accent-strong:#0D498C; --accent-deep:#1A3E6E; --sky:#29A9E1;
+    --success-bg:#E4F5EC; --success-text:#1C7A4B;
+    --danger:#A23B2C; --danger-bg:#F6E4E1;
+    --shadow:0 1px 2px rgba(20,15,16,.06), 0 10px 28px -14px rgba(13,73,140,.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Mulish",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  button{font-family:inherit;cursor:pointer;}
+  input{font-family:inherit;}
+  a.link,button.link{background:none;border:0;padding:0;color:var(--accent);font-weight:700;font-size:12.5px;cursor:pointer;text-decoration:none;}
+  a.link:hover,button.link:hover{text-decoration:underline;}
+  :focus-visible{outline:3px solid rgba(0,115,186,.35);outline-offset:2px;border-radius:6px;}
+
+  /* ---- prototype control bar (not part of the product) ---- */
+  .proto{
+    background:#0E1626;color:#C9D6E8;font-size:12px;
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    padding:9px 18px;
+  }
+  .proto b{color:#fff;font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:11px;}
+  .proto .hint{color:#9FB0C8;}
+  .proto .hint code{background:#1C2B48;color:#EEF2F8;border-radius:5px;padding:1px 6px;font-family:ui-monospace,Menlo,monospace;font-size:11px;cursor:pointer;}
+  .proto .hint code:hover{background:#27395E;}
+  .proto .spacer{flex:1;}
+  .proto button{
+    background:transparent;color:#EEF2F8;border:1px solid #2F4368;border-radius:7px;
+    padding:5px 11px;font-size:11.5px;font-weight:700;
+  }
+  .proto button:hover{background:#1C2B48;}
+  .proto button.on{background:#29A9E1;border-color:#29A9E1;color:#0E1626;}
+
+  /* ---- the club website ---- */
+  .site{max-width:1080px;margin:28px auto 60px;padding:0 20px;}
+  .browser{
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .chrome{
+    height:36px;display:flex;align-items:center;gap:6px;padding:0 14px;
+    background:var(--surface-2);border-bottom:1px solid var(--border);
+  }
+  .chrome .dot{width:9px;height:9px;border-radius:50%;background:var(--border);}
+  .chrome .url{
+    margin-left:10px;flex:1;font-size:11.5px;color:var(--muted);
+    background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:4px 12px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:14px 26px;border-bottom:1px solid var(--border);
+  }
+  .logo{font-weight:800;font-size:15px;display:flex;align-items:center;gap:10px;}
+  .logo i{width:20px;height:20px;border-radius:5px;background:var(--accent-deep);display:inline-block;}
+  .links{display:flex;gap:18px;font-size:13px;color:var(--muted);font-weight:600;}
+  .links span.on{color:var(--text);border-bottom:2px solid var(--accent);padding-bottom:3px;}
+  .secure{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);}
+  @media (max-width:700px){.links{display:none;}}
+
+  .shell{display:grid;grid-template-columns:1fr 300px;min-height:520px;}
+  @media (max-width:860px){.shell{grid-template-columns:1fr;}}
+  .main{padding:30px 34px 36px;min-width:0;}
+  .side{background:var(--surface-2);border-left:1px solid var(--border);padding:26px 22px;}
+  @media (max-width:860px){.side{border-left:none;border-top:1px solid var(--border);}}
+
+  h1{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em;}
+  .sub{font-size:14px;color:var(--text-soft);margin:0 0 20px;line-height:1.55;}
+  .lbl{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  .stack{max-width:460px;}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field{grid-column:span 1;}
+  .field.full{grid-column:1 / -1;}
+  .field label{display:block;font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:5px;}
+  .field label .opt{color:var(--muted);font-weight:500;}
+  .field input{
+    width:100%;border:1px solid var(--border);border-radius:10px;background:var(--surface);
+    padding:12px 13px;font-size:14.5px;color:var(--text);
+  }
+  .field input::placeholder{color:#A9B2BE;}
+  .field input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(0,115,186,.15);}
+  .field input.err{border-color:var(--danger);}
+  .help{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:8px;}
+  .help.err{color:var(--danger);font-weight:600;}
+  .row-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12.5px;color:var(--muted);}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--accent);color:#fff;border:0;border-radius:11px;
+    padding:13px 22px;font-weight:800;font-size:14.5px;
+    box-shadow:0 10px 20px -10px rgba(0,115,186,.6);
+    transition:transform .08s ease, background .15s ease;
+  }
+  .btn:hover{background:#0068A8;}
+  .btn:active{transform:translateY(1px);}
+  .btn:disabled{opacity:.45;box-shadow:none;cursor:not-allowed;}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);box-shadow:none;}
+  .btn.ghost:hover{background:rgba(0,115,186,.06);}
+  .actions{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+
+  .otp{display:flex;gap:8px;max-width:330px;margin-top:4px;}
+  .otp input{
+    width:100%;height:52px;text-align:center;font-size:22px;font-weight:800;
+    border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);
+    font-variant-numeric:tabular-nums;
+  }
+  .otp input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(0,115,186,.15);}
+
+  .welcome{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--success-bg);color:var(--success-text);
+    border-radius:10px;padding:10px 14px;font-size:13.5px;font-weight:700;margin-bottom:18px;
+  }
+  .kv{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .kv:last-child{border-bottom:none;}
+  .kv .k{color:var(--muted);}
+  .kv .v{font-weight:600;}
+
+  .paysel{
+    display:flex;align-items:center;gap:12px;
+    background:var(--surface);border:1.5px solid var(--accent);border-radius:12px;padding:12px 14px;
+  }
+  .paysel .chip{width:34px;height:23px;border-radius:5px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-strong));flex:none;}
+  .paysel .txt{flex:1;font-size:13.5px;font-weight:700;}
+  .paysel .txt small{display:block;font-weight:500;color:var(--muted);font-size:11.5px;margin-top:1px;}
+  .paysel .check{color:var(--accent);font-weight:800;font-size:16px;}
+
+  .toggle{
+    display:flex;gap:14px;align-items:flex-start;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-top:14px;
+    cursor:pointer;
+  }
+  .toggle input{position:absolute;opacity:0;width:0;height:0;}
+  .switch{width:40px;height:23px;border-radius:999px;background:#C4CDD8;flex:none;position:relative;transition:background .15s;margin-top:1px;}
+  .switch::after{content:"";position:absolute;top:2.5px;left:2.5px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.2);}
+  .toggle input:checked + .switch{background:var(--accent);}
+  .toggle input:checked + .switch::after{left:19.5px;}
+  .toggle input:focus-visible + .switch{outline:3px solid rgba(0,115,186,.35);outline-offset:2px;}
+  .toggle .t{font-size:13.5px;font-weight:700;}
+  .toggle .d{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;}
+
+  .section{margin-top:22px;}
+
+  .pass{
+    display:flex;gap:18px;align-items:center;
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:460px;
+  }
+  .qr{
+    width:96px;height:96px;flex:none;border-radius:8px;padding:7px;
+    background:#fff;border:1px solid var(--border);
+    display:grid;grid-template-columns:repeat(7,1fr);gap:2px;
+  }
+  .qr i{display:block;background:var(--text);border-radius:1px;}
+  .qr i.o{background:transparent;}
+  .pass .big{font-size:16px;font-weight:800;}
+  .pass .sm{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5;}
+  .pill-ok{
+    display:inline-flex;align-items:center;gap:8px;margin-top:14px;
+    background:var(--success-bg);color:var(--success-text);border-radius:10px;padding:10px 13px;font-size:13px;font-weight:700;
+  }
+
+  /* sidebar */
+  .side .lbl{margin-bottom:12px;}
+  .srow{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border);}
+  .srow .k{color:var(--text-soft);}
+  .srow .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .total{display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:2px solid var(--border);font-weight:800;font-size:15px;}
+  .fine{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.55;}
+
+  .dayrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .dayrow .k{color:var(--text-soft);}
+  .dayrow input[type=date]{
+    border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);
+    padding:6px 8px;font-size:12.5px;font-weight:700;font-family:inherit;max-width:150px;
+  }
+  .dayrow input[type=date]:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(0,115,186,.15);}
+  .dayhint{font-size:11px;color:var(--muted);margin-top:6px;}
+  .syslog{margin-top:26px;padding-top:18px;border-top:1px dashed var(--border);}
+  .syslog[hidden]{display:none;}
+  .syslog .lbl{color:var(--accent-strong);}
+  .syslog ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;}
+  .syslog li{
+    font-size:11.5px;line-height:1.45;color:var(--text-soft);
+    padding:7px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);
+    font-family:ui-monospace,Menlo,monospace;
+  }
+  .syslog li b{color:var(--text);font-weight:700;}
+  .syslog li.ok{border-color:#BFE6CF;}
+  .syslog li.warn{border-color:#F0C6BE;}
+  .syslog .empty{font-size:11.5px;color:var(--muted);font-style:italic;}
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    background:#0E1626;color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:all .2s ease;box-shadow:0 12px 30px -10px rgba(0,0,0,.4);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .fade{animation:fade .18s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion:reduce){.fade{animation:none;} .btn,.switch,.switch::after,.toast{transition:none;}}
+</style>
+</head>
+<body>
+
+<div class="proto" role="region" aria-label="Demo controls">
+  <b>Demo 1 · First visit</b>
+  <span class="hint">You've never been to Riverside. Enter any mobile number or email — nothing is on file yet.</span>
+  <span class="spacer"></span>
+  <button id="toggleLog" class="on" type="button">Behind the scenes: on</button>
+  <button id="restart" type="button">Restart demo</button>
+</div>
+
+<div class="site">
+  <div class="browser">
+    <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url" id="url">riverside.abcfitness.com/day-pass</span></div>
+    <div class="nav">
+      <span class="logo"><i></i>Riverside Athletic Club</span>
+      <span class="links"><span>Classes</span><span>Memberships</span><span class="on">Day pass</span><span>Visit</span></span>
+      <span class="secure">&#128274; Secure checkout</span>
+    </div>
+    <div class="shell">
+      <main class="main" id="main" aria-live="polite"></main>
+      <aside class="side">
+        <div class="lbl" id="sideTitle">Order summary</div>
+        <div id="summary"></div>
+        <div class="fine" id="fine">No membership. No recurring billing. Change plan any time before you pay.</div>
+        <div class="syslog" id="syslog">
+          <div class="lbl">Behind the scenes</div>
+          <ol id="log"></ol>
+          <div class="empty" id="logEmpty">Nothing yet. The lookup happens when you press Continue.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  // ---------- seeded records (in-memory "club") ----------
+  // Only Jordan is on file to begin with. Anyone who completes a first-time purchase
+  // with "save card" on is added — so a second run through shows the returning lane.
+  const club = {
+    name:"Riverside Athletic Club",
+    records:[
+      { id:"mbr_7f3a91", first:"Jordan", last:"Reyes", email:"jordan.reyes@email.com", phone:"5550192231",
+        card:{ brand:"Visa", last4:"4242", source:"Saved in the app last week" } }
+    ]
+  };
+  const PRICE = 18.00;
+  const MODE = "first";
+
+  // ---------- state ----------
+  let S = fresh();
+  function fresh(){
+    return { step:"identify", raw:"", channel:null, key:null, person:null, day:todayISO(),
+             otp:"", saveCard:true, useSaved:true, newCard:null, secondContact:"", showLog:true, log:[] };
+  }
+
+  // ---------- helpers ----------
+  function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+  function dayLabel(short){
+    const [y,m,dd]=S.day.split("-").map(Number); const d=new Date(y,m-1,dd);
+    const txt=d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+    if(S.day===todayISO()) return short ? "Today" : `Today · ${txt}`;
+    return txt;
+  }
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const digits = s => (s||"").replace(/\D/g,"");
+  const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+  const isPhone = s => { const d = digits(s); return d.length===10 || (d.length===11 && d[0]==="1"); };
+  const normPhone = s => { let d = digits(s); if(d.length===11) d = d.slice(1); return d; };
+  const fmtPhone = d => d ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : "";
+  const maskPhone = d => d ? `(${d.slice(0,3)}) •••-${d.slice(6)}` : "";
+  const maskEmail = e => { if(!e) return ""; const [u,dom]=e.split("@"); return `${u[0]}${"•".repeat(Math.min(5,Math.max(3,u.length-1)))}@${dom}`; };
+  const money = n => `$${n.toFixed(2)}`;
+  const brandOf = num => { const d=digits(num); if(d[0]==="4") return "Visa"; if(d[0]==="5") return "Mastercard"; if(d[0]==="3") return "Amex"; if(d[0]==="6") return "Discover"; return "Card"; };
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function log(msg, kind){ S.log.push({msg, kind:kind||""}); renderLog(); }
+  function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
+
+  function lookup(){
+    if(MODE==="first") return null;                 // Demo 1: nobody is on file
+    const r = club.records[0];                       // Demo 2: whatever you typed is Jordan's contact on file
+    if(S.channel==="email") r.email = S.key; else r.phone = S.key;
+    return r;
+  }
+  function contactLabel(){ return S.channel==="email" ? S.key : fmtPhone(S.key); }
+  function contactMasked(){ return S.channel==="email" ? maskEmail(S.key) : maskPhone(S.key); }
+
+  // ---------- render ----------
+  function render(){
+    const main = $("#main");
+    main.innerHTML = "";
+    const wrap = document.createElement("div"); wrap.className="fade";
+    wrap.innerHTML = ({identify, verify, recognized, newvisitor, done})[S.step]();
+    main.appendChild(wrap);
+    bind();
+    renderSide();
+    $("#url").textContent = S.step==="done" ? "riverside.abcfitness.com/pass" : "riverside.abcfitness.com/day-pass";
+    const f = main.querySelector("[data-autofocus]"); if(f) f.focus();
+  }
+
+  function identify(){
+    return `
+      <h1>Get your day pass</h1>
+      <p class="sub">Start with how we can reach you. Either works.</p>
+      <div class="stack">
+        <div class="fields">
+          <div class="field full">
+            <label for="ident">Mobile number or email</label>
+            <input id="ident" data-autofocus type="text" inputmode="email" autocomplete="username" placeholder="you@email.com or (555) 555-0123" value="${esc(S.raw)}">
+          </div>
+        </div>
+        <div class="help" id="identHelp">Bought with us before? We'll send a code so you can use your saved card. New here? You'll set up in the next step.</div>
+        <div class="actions"><button class="btn" id="continue" type="button">Continue</button></div>
+      </div>`;
+  }
+
+  function verify(){
+    const other = S.channel==="email" ? (S.person.phone ? "Text me instead" : null) : (S.person.email ? "Email me instead" : null);
+    return `
+      <h1>${S.channel==="email" ? "Check your email" : "Check your texts"}</h1>
+      <p class="sub">We sent a 6-digit code to <b>${esc(contactMasked())}</b>.</p>
+      <div class="stack">
+        <div class="otp" id="otp" aria-label="6-digit code">
+          ${[0,1,2,3,4,5].map(i=>`<input type="text" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}" ${i===0?"data-autofocus":""}>`).join("")}
+        </div>
+        <div class="help">Any 6 digits work in this prototype.</div>
+        <div class="row-links">
+          <button class="link" type="button" id="resend">Resend code</button>
+          ${other ? `<span>·</span><button class="link" type="button" id="switchCh">${other}</button>` : ""}
+          <span>·</span><button class="link" type="button" id="startover">Start over</button>
+        </div>
+        <div class="actions"><button class="btn" id="verifyBtn" type="button" disabled>Verify</button></div>
+      </div>`;
+  }
+
+  function cardForm(prefix, withSave){
+    return `
+      <div class="fields" style="margin-top:12px;">
+        <div class="field full"><label for="${prefix}num">Card number</label><input id="${prefix}num" type="text" inputmode="numeric" autocomplete="cc-number" placeholder="1234 5678 9012 3456"></div>
+        <div class="field"><label for="${prefix}exp">Expiry</label><input id="${prefix}exp" type="text" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY"></div>
+        <div class="field"><label for="${prefix}cvc">CVC</label><input id="${prefix}cvc" type="text" inputmode="numeric" autocomplete="cc-csc" placeholder="•••"></div>
+      </div>
+      ${withSave ? `
+      <label class="toggle">
+        <input type="checkbox" id="${prefix}save" ${S.saveCard?"checked":""}>
+        <span class="switch"></span>
+        <span><span class="t">Save this card for next time</span><span class="d" style="display:block">Here, in the app, or at the front desk. No membership, no recurring billing.</span></span>
+      </label>` : ""}`;
+  }
+
+  function recognized(){
+    const p = S.person;
+    const typedEmail = S.channel==="email";
+    return `
+      <div class="welcome">&#10003; Welcome back, ${esc(p.first)}</div>
+      <div class="stack">
+        <div class="section" style="margin-top:0">
+          <div class="lbl">Your info</div>
+          <div class="kv"><span class="k">Name</span><span class="v">${esc(p.first)} ${esc(p.last)}</span></div>
+          <div class="kv"><span class="k">Email</span><span class="v">${typedEmail ? esc(p.email) : esc(maskEmail(p.email))}</span></div>
+          <div class="kv"><span class="k">Mobile</span><span class="v">${typedEmail ? esc(maskPhone(p.phone)) : esc(fmtPhone(p.phone))}</span></div>
+        </div>
+        <div class="section">
+          <div class="lbl">Payment</div>
+          ${S.useSaved ? `
+            <div class="paysel">
+              <div class="chip"></div>
+              <div class="txt">${esc(p.card.brand)} •••• ${esc(p.card.last4)}<small>${esc(p.card.source)}</small></div>
+              <div class="check">&#10003;</div>
+            </div>
+            <div class="row-links"><button class="link" type="button" id="diffCard">Use a different card</button></div>
+          ` : `
+            <div class="help" style="margin-top:0">Enter a new card. <button class="link" type="button" id="useSaved">Use ${esc(p.card.brand)} •••• ${esc(p.card.last4)} instead</button></div>
+            ${cardForm("r", true)}
+          `}
+        </div>
+        <div class="actions"><button class="btn" id="pay" type="button">Pay ${money(PRICE)} and get my pass</button></div>
+      </div>`;
+  }
+
+  function newvisitor(){
+    const second = S.channel==="email"
+      ? { label:"Mobile number", opt:"optional", ph:"(555) 555-0123", help:"So we can find your saved card if you use a different email next time." }
+      : { label:"Email", opt:"optional", ph:"you@email.com", help:"So we can find your saved card if you use a different number next time." };
+    return `
+      <h1>Welcome — a few details</h1>
+      <p class="sub">${S.channel==="email" ? "Email" : "Mobile"} <b>${esc(contactLabel())}</b> &nbsp;<button class="link" type="button" id="editContact">Edit</button></p>
+      <div class="stack">
+        <div class="fields">
+          <div class="field"><label for="first">First name</label><input id="first" data-autofocus type="text" autocomplete="given-name"></div>
+          <div class="field"><label for="last">Last name</label><input id="last" type="text" autocomplete="family-name"></div>
+          <div class="field full"><label for="second">${second.label} <span class="opt">· ${second.opt}</span></label><input id="second" type="text" placeholder="${second.ph}" value="${esc(S.secondContact)}"><div class="help" style="margin-top:6px">${second.help}</div></div>
+        </div>
+        <div class="section">
+          <div class="lbl">Payment</div>
+          ${cardForm("n", true)}
+        </div>
+        <div class="help err" id="formErr" hidden></div>
+        <div class="actions"><button class="btn" id="payNew" type="button">Pay ${money(PRICE)} and get my pass</button></div>
+      </div>`;
+  }
+
+  function done(){
+    const p = S.person;
+    const card = S.useSaved && p.card && !S.newCard ? p.card : S.newCard;
+    const saved = S.newCard ? S.saveCard : true;
+    const ch = S.channel==="email" ? "emailed" : "texted";
+    return `
+      <div class="welcome">&#10003; You're in, ${esc(p.first)}</div>
+      <div class="pass">
+        <div class="qr" aria-hidden="true">${qr()}</div>
+        <div>
+          <div class="big">1-day pass · ${esc(dayLabel())}</div>
+          <div class="sm">Show this at the front desk, or just say your name. We ${ch} it to ${esc(contactMasked())} too.</div>
+        </div>
+      </div>
+      ${saved
+        ? `<div class="pill-ok">&#10003; ${esc(card.brand)} •••• ${esc(card.last4)} saved to your wallet</div>
+           <div class="help stack">Next time — here, in the app, or at the desk — you'll just verify your ${S.channel==="email"?"email":"number"} and pay. That's Demo 2.</div>`
+        : `<div class="help stack" style="margin-top:14px">You chose not to save a card. Next time you'll enter it again.</div>`}
+      <div class="actions">
+        <button class="btn ghost" id="getApp" type="button">Get the Riverside app</button>
+        <button class="btn" id="again" type="button">Restart demo</button>
+      </div>`;
+  }
+
+  function qr(){
+    const m = [
+      "1110111","1010101","1110111","0001000","1110101","1010010","1110111"
+    ];
+    return m.join("").split("").map(c=>`<i class="${c==="0"?"o":""}"></i>`).join("");
+  }
+
+  // ---------- sidebar ----------
+  function renderSide(){
+    const s = $("#summary");
+    const p = S.person;
+    let paying = null;
+    if(S.step==="recognized" && S.useSaved && p) paying = `${p.card.brand} ••${p.card.last4}`;
+    if(S.step==="done"){ const c = (S.useSaved && p.card && !S.newCard) ? p.card : S.newCard; paying = `${c.brand} ••${c.last4}`; }
+    $("#sideTitle").textContent = S.step==="done" ? "Receipt" : "Order summary";
+    s.innerHTML = `
+      <div class="srow"><span class="k">1-day pass</span><span class="v">${money(PRICE)}</span></div>
+      ${S.step==="done"
+        ? `<div class="srow"><span class="k">Valid</span><span class="v">${esc(dayLabel())}</span></div>`
+        : `<div class="dayrow"><label class="k" for="day">Pick a day</label><input type="date" id="day" value="${S.day}" min="${todayISO()}"></div>`}
+      ${paying ? `<div class="srow"><span class="k">${S.step==="done"?"Paid with":"Paying with"}</span><span class="v">${esc(paying)}</span></div>` : ""}
+      <div class="total"><span>${S.step==="done"?"Paid":"Total"}</span><span>${money(PRICE)}</span></div>`;
+    const dayInput = $("#day");
+    if(dayInput){ dayInput.addEventListener("change", ()=>{ if(dayInput.value){ S.day=dayInput.value; renderSide(); toast(`Day pass for ${dayLabel(true)}`); } }); }
+    $("#fine").textContent = S.step==="done"
+      ? `Receipt ${S.channel==="email"?"emailed":"texted"} to ${contactMasked()}. Your card stays on file at Riverside — not on this website.`
+      : (S.step==="recognized" ? `Valid ${dayLabel()}. Your card stays on file at Riverside — not on this website.` : `Defaults to today — pick another day if you're planning ahead. No membership. No recurring billing.`);
+    $("#syslog").hidden = !S.showLog;
+  }
+  function renderLog(){
+    const ol = $("#log"); ol.innerHTML = S.log.map(e=>`<li class="${e.kind}">${e.msg}</li>`).join("");
+    $("#logEmpty").hidden = S.log.length>0;
+  }
+
+  // ---------- behavior ----------
+  function bind(){
+    const m = $("#main");
+
+    // identify
+    const ident = $("#ident", m);
+    if(ident){
+      const go = () => {
+        const raw = ident.value.trim(); S.raw = raw;
+        if(isEmail(raw)){ S.channel="email"; S.key=raw.toLowerCase(); }
+        else if(isPhone(raw)){ S.channel="phone"; S.key=normPhone(raw); }
+        else { ident.classList.add("err"); const h=$("#identHelp",m); h.textContent="Enter a mobile number or an email address."; h.classList.add("err"); ident.focus(); return; }
+        const hit = lookup();
+        if(hit){
+          S.person = hit; S.step="verify"; S.otp="";
+          log(`Lookup by <b>${S.channel}</b> at home club → <b>match</b> · member ID <b>${hit.id}</b>`, "ok");
+          log(`One-time code sent via <b>${S.channel}</b>. Nothing about the person disclosed yet.`);
+        } else {
+          S.person = null; S.step="newvisitor";
+          log(`Lookup by <b>${S.channel}</b> at home club → <b>no match</b>. Continue as first-time visitor.`, "warn");
+        }
+        render();
+      };
+      $("#continue", m).addEventListener("click", go);
+      ident.addEventListener("keydown", e => { if(e.key==="Enter") go(); });
+    }
+
+    // verify
+    const otp = $("#otp", m);
+    if(otp){
+      const inputs = [...otp.querySelectorAll("input")];
+      const btn = $("#verifyBtn", m);
+      const update = () => { S.otp = inputs.map(i=>i.value).join(""); btn.disabled = S.otp.length!==6; };
+      inputs.forEach((inp,i)=>{
+        inp.addEventListener("input", ()=>{ inp.value = digits(inp.value).slice(-1); update(); if(inp.value && inputs[i+1]) inputs[i+1].focus(); });
+        inp.addEventListener("keydown", e=>{
+          if(e.key==="Backspace" && !inp.value && inputs[i-1]) { inputs[i-1].focus(); }
+          if(e.key==="Enter" && !btn.disabled) verifyNow();
+        });
+        inp.addEventListener("paste", e=>{
+          const d = digits((e.clipboardData||window.clipboardData).getData("text")).slice(0,6);
+          if(d.length){ e.preventDefault(); d.split("").forEach((c,j)=>{ if(inputs[j]) inputs[j].value=c; }); update(); (inputs[Math.min(d.length,5)]).focus(); }
+        });
+      });
+      const verifyNow = () => {
+        S.step="recognized"; S.useSaved=true; S.newCard=null;
+        log(`Code verified → browser session bound to member ID <b>${S.person.id}</b>`, "ok");
+        log(`Wallet owner resolved <b>by member ID</b> (owner type MEMBER) → 1 entry: ${S.person.card.brand} ••${S.person.card.last4}`, "ok");
+        render();
+      };
+      btn.addEventListener("click", verifyNow);
+      $("#resend", m).addEventListener("click", ()=>{ toast("Code resent"); log(`Code resent via ${S.channel}`); });
+      const sw = $("#switchCh", m);
+      if(sw) sw.addEventListener("click", ()=>{
+        S.channel = S.channel==="email" ? "phone" : "email";
+        S.key = S.channel==="email" ? S.person.email.toLowerCase() : S.person.phone;
+        log(`Visitor switched channel → code sent via <b>${S.channel}</b> (other contact was already on file)`);
+        render(); toast(S.channel==="email" ? "Code emailed" : "Code texted");
+      });
+      $("#startover", m).addEventListener("click", ()=>{ const keepLog=S.showLog; S=fresh(); S.showLog=keepLog; renderLog(); render(); });
+    }
+
+    // recognized
+    const pay = $("#pay", m);
+    if(pay){
+      const diff = $("#diffCard", m); if(diff) diff.addEventListener("click", ()=>{ S.useSaved=false; render(); });
+      const use = $("#useSaved", m); if(use) use.addEventListener("click", ()=>{ S.useSaved=true; render(); });
+      pay.addEventListener("click", ()=>{
+        if(!S.useSaved){
+          const num = $("#rnum", m).value, exp=$("#rexp", m).value, cvc=$("#rcvc", m).value;
+          if(digits(num).length<12 || !exp || !cvc){ toast("Enter the card details to continue"); $("#rnum", m).focus(); return; }
+          S.saveCard = $("#rsave", m).checked;
+          S.newCard = { brand:brandOf(num), last4:digits(num).slice(-4), source:"Saved online" };
+          log(`Payment authorized ${money(PRICE)} on new ${S.newCard.brand} ••${S.newCard.last4}`, "ok");
+          if(S.saveCard){ S.person.card = S.newCard; log(`New wallet entry added to existing owner <b>${S.person.id}</b> — no second wallet created`, "ok"); }
+        } else {
+          log(`Payment authorized ${money(PRICE)} on stored ${S.person.card.brand} ••${S.person.card.last4} — card never re-entered`, "ok");
+        }
+        log(`Pass issued for <b>${esc(dayLabel())}</b> · ${S.channel==="email"?"emailed":"texted"} to ${contactMasked()}`);
+        S.step="done"; render();
+      });
+    }
+
+    // new visitor
+    const payNew = $("#payNew", m);
+    if(payNew){
+      $("#editContact", m).addEventListener("click", ()=>{ S.step="identify"; render(); });
+      payNew.addEventListener("click", ()=>{
+        const first=$("#first",m).value.trim(), last=$("#last",m).value.trim();
+        const num=$("#nnum",m).value, exp=$("#nexp",m).value, cvc=$("#ncvc",m).value;
+        const second=$("#second",m).value.trim();
+        const err=$("#formErr",m);
+        let bad=null;
+        if(!first||!last) bad="Please add your first and last name.";
+        else if(digits(num).length<12||!exp||!cvc) bad="Please complete the card details.";
+        else if(second && !(S.channel==="email" ? isPhone(second) : isEmail(second))) bad = S.channel==="email" ? "That mobile number doesn't look right." : "That email doesn't look right.";
+        if(bad){ err.textContent=bad; err.hidden=false; return; }
+        err.hidden=true;
+        S.saveCard = $("#nsave",m).checked;
+        S.secondContact = second;
+        S.newCard = { brand:brandOf(num), last4:digits(num).slice(-4), source:"Saved online" };
+
+        log(`Payment authorized ${money(PRICE)} on ${S.newCard.brand} ••${S.newCard.last4}`, "ok");
+        const id = "mbr_" + Math.random().toString(16).slice(2,8);
+        const rec = { id, first, last,
+          email: S.channel==="email" ? S.key : (second ? second.toLowerCase() : null),
+          phone: S.channel==="phone" ? S.key : (second ? normPhone(second) : null),
+          card: S.saveCard ? S.newCard : null };
+        log(`Prospect record persisted → member ID <b>${id}</b> (agreement number: none — not PROSP as identity)`, "ok");
+        if(S.saveCard){
+          club.records.push(rec);
+          log(`<b>Then</b> wallet owner created by member ID → ${S.newCard.brand} ••${S.newCard.last4} saved. Available at desk, app, web.`, "ok");
+          if(second) log(`Second contact stored as an additional lookup key — protects against a duplicate record next visit.`);
+        } else {
+          club.records.push({ ...rec, card:null });
+          log(`Card not saved by choice. Prospect exists; no wallet entry created.`, "warn");
+        }
+        log(`Pass issued for <b>${esc(dayLabel())}</b> · ${S.channel==="email"?"emailed":"texted"} to ${contactMasked()}`);
+        S.person = rec; S.useSaved=false; S.step="done"; render();
+      });
+    }
+
+    // done
+    const again = $("#again", m);
+    if(again){
+      again.addEventListener("click", ()=>{ const keepLog=S.showLog; const hint = S.raw; S=fresh(); S.showLog=keepLog; S.raw=hint; renderLog(); render();  });
+      $("#getApp", m).addEventListener("click", ()=>toast("Same member ID, same wallet — the app would recognize you too"));
+    }
+  }
+
+  // ---------- proto bar ----------
+  $("#restart").addEventListener("click", ()=>{ const keepLog=S.showLog; S=fresh(); S.showLog=keepLog; renderLog(); render(); });
+  $("#toggleLog").addEventListener("click", e=>{ S.showLog=!S.showLog; e.currentTarget.classList.toggle("on", S.showLog); e.currentTarget.textContent = `Behind the scenes: ${S.showLog?"on":"off"}`; renderSide(); });
+
+  renderLog(); render();
+})();
+</script>
+</body>
+</html>

@@ -30,6 +30,11 @@ Most relevant routes for prospect/day-pass work: `themes/identity-by-member-id.m
 
 For `online-join-ui/`, `online-join-bff/`, and `mico/` there is no index yet; use `rg` directly against `/Users/bjornloftis/claudeprojects/prospects-ui/repos/`.
 
+**Sprint 0001 code (branch `prospect-wallet/sprint-0001` in both online-join repos, 2026-09-09/10, unindexed):**
+- BFF — `online-join-bff/src/routes/shortTermPass/` (router, `schemas.ts` contract, checkouts/identify/challenge/verify/wallet/order/purchase/session routes, HTTP harness under `testing/`), `src/services/shortTermPass/` (config, errors, http, log, contact, challenge, identify, person, order, wallet, idempotency, purchaseOrchestrator; `ports/*`, `adapters/{mock,platform}/*`, `fixtures/*`), `src/services/platform/{oauthToken,locationResolver}.ts`, `src/services/payPage/{client,sessionOwnership}.ts`, `src/utils/middlewares/{requireShortTermPass,csrf,originAllowlist,rateLimit}.ts`, `scripts/short-term-pass-demo.ts`.
+- UI — `online-join-ui/src/routes/ShortTermPass/` (page, `steps/`, `components/`, `hooks/`, `format.ts`), `src/routes/SignupShell.tsx`, `src/reducers/shortTermPass/shortTermPassSlice.ts`, `src/selectors/shortTermPass.ts`, `src/services/shortTermPass.ts`, `src/interfaces/api/shortTermPass.ts`, `src/components/dt/*`, `src/styles/short-term-pass.scss`; tests under `__tests__/routes/ShortTermPass/**`, `__tests__/reducers/shortTermPass/`, `__tests__/selectors/`, `__tests__/services/shortTermPass.test.ts`.
+- Planning deliverables — `docs/contracts/short-term-pass-bff.md`, `docs/demos/short-term-pass-local-demo.md`, `docs/validation/short-term-pass-{bff,ui}.md`, `docs/sprints/drafts/SPRINT-0001-{BLOCKERS,EXECUTION-SUMMARY}.md`.
+
 To extend: run `/df-semantic-index /Users/bjornloftis/claudeprojects/prospects-ui/repos /Users/bjornloftis/claudeprojects/prospects1/docs/semantic-index` in upsert mode.
 
 ## Related planning context

@@ -1,0 +1,149 @@
+# Short-term pass (Day Pass) — BFF contract, adapter register and readiness
+
+**Status:** frozen at Sprint 0001 task A1 (2026-09-09); adapter register completed in C7 (2026-09-09); readiness register completed in E5 (2026-09-10).
+**Source of truth for shapes:** `online-join-bff/src/routes/shortTermPass/schemas.ts` (ajv schemas + TypeScript types), mirrored by `online-join-ui/src/interfaces/api/shortTermPass.ts`.
+**Source SHAs at freeze:** `online-join-ui` `f3242b1`, `online-join-bff` `bc8a4bd` plus the uncommitted `src/server.ts` manifest-skip patch (now committed on `prospect-wallet/sprint-0001`), `mico` `5dad4d66` (read-only).
+**Internal naming:** `ShortTermPass` / `shortTermPass` / `STP_*`. "Day pass" is UI copy only.
+
+## 1. Scope recorded at A1
+
+Ships: club-scoped flag + `onlineProspects` gate on both sides; `/signup/day-pass` shell; `/api/short-term-pass` router with an opaque server-side checkout session; identify → challenge → verify → bind to Ignite member UUID; pass-scoped Pay Page session; server-owned order; synchronous idempotent purchase orchestration; typed ports with deterministic stateful mocks; platform adapters for Pay Page session reads and (dark) wallet reads; tests to threshold; demo script; this document.
+
+Does not ship: any change to MICO, universal-wallet, wallet-account-sync, datatrak, spring-cloud-config or `@abc/bff-toolkit`; real code delivery, prospect creation, pass sale or wallet write in any environment; multi-day passes; embedded (iframe) checkout; diagnostics panel; metrics.
+
+## 2. Environment matrix
+
+| Variable | mock (local / CI) | platform (dev) | production | Notes |
+|---|---|---|---|---|
+| `STP_ADAPTER_MODE` | `mock` | `platform` | `platform` or unset | Unset = feature disabled (every pass route 404, no secrets required). Production refuses `mock`. |
+| `STP_LOCAL_FLAG_OVERRIDE` | `true` | unset | refused | Honoured only when `NODE_ENV === 'development'`. |
+| `STP_SESSION_SECRET`, `STP_CODE_SECRET` | dev defaults | required | required | HMAC keys for session ids and one-time codes. |
+| `STP_ALLOWED_ORIGINS` | `http://localhost:3000` | dev origin | required | Fail-closed Origin allowlist on every mutation. |
+| `STP_MOCK_OTP_CODE` | `123456` | ignored | ignored | Six digits. |
+| `STP_MOCK_FAULTS` | optional | unset | refused | Test-harness fault switch (see §7). |
+| `STP_WALLET_READS` | ignored | `false` until L3 | `false` | Platform wallet read adapter. |
+| `STP_WALLET_WRITES` | ignored | `false` | `false` | Never true before the sibling backend sprint ships and L3 is signed. |
+| `UNIVERSAL_WALLET_API_URL` | — | dev URL | prod URL | Platform wallet adapter. |
+| `PAY_PAGE_API_URL`, `PAY_PAGE_CLIENT_ID`, `PAY_PAGE_CLIENT_SECRET`, `PAY_PAGE_CONSUMER_ID`, `PAY_PAGE_ORIGIN`, `ABC_CORE_API_URL` | — | required | required | Already read by the payPage route; reused by the pass-scoped session reader. **Not present in the local `.env` at execution time (see blockers).** |
+
+Boot guard (`assertShortTermPassBootConfig`, called from `server.ts`): unknown mode → refuse; production + mock → refuse; production + override/faults → refuse; production or platform mode without secrets → refuse; production without origins → refuse; feature-off production always boots.
+
+## 3. Gating
+
+Every `/api/short-term-pass/*` route and the pass-scoped Pay Page session route run `requireShortTermPass`: resolve club (body `clubNumber` for `POST /checkouts`, the checkout record for everything else) → `ClubCatalogPort.resolveClub` → LaunchDarkly `oj-short-term-pass-checkout` evaluated with `{kind:'club', key:<5-digit padded>}` → `club.onlineProspects`. Any failure, missing data or thrown error → `404 {code:'NOT_FOUND'}`. The HTML entry point serializes `window.featureFlags.oj_short_term_pass_checkout` from the same evaluation with the validated `?club=` query; the UI treats it as a hint only.
+
+Pay Page pads club numbers to six digits for its location lookup; LaunchDarkly pads to five. Both mappings are distinct and tested (`getClubFeatureFlagContext` vs `padClubNumber`).
+
+## 4. Browser contract (`/api/short-term-pass`)
+
+Common rules: JSON bodies validated with ajv, `additionalProperties:false`; bodies never accept `memberId`, owner/user/entry ids, org/location ids, agreement metadata, price, terminal id, PG token, `pan`, `cvc`, `expiry`, `tokenId`. Every response is `Cache-Control: no-store` and carries `X-Correlation-Id`. Mutations require the `OJ-PASS-SESSION` cookie, the `X-STP-CSRF` header equal to the checkout's `csrfToken`, and an allowlisted `Origin`.
+
+Error envelope: `{code, message, retryable, correlationId, retryAfterSeconds?, details?}`. Codes: `VALIDATION_FAILED` 400 · `NOT_FOUND` 404 · `CHECKOUT_EXPIRED` 401 · `NOT_VERIFIED` 401 · `CSRF_REJECTED` / `ORIGIN_REJECTED` / `FORBIDDEN` 403 · `STATE_CONFLICT` / `IDEMPOTENCY_CONFLICT` / `PURCHASE_IN_PROGRESS` 409 · `CODE_INVALID` / `CODE_EXPIRED` / `CHALLENGE_MISSING` 401 · `CHALLENGE_LOCKED` / `THROTTLED` 429 · `ORDER_NOT_READY` / `CAPTURE_NOT_READY` 409 · `PAYMENT_DECLINED` 402 · `UPSTREAM_UNAVAILABLE` 502 · `NOT_ENABLED` 501.
+
+| Method / path | Request | Response |
+|---|---|---|
+| `POST /checkouts` | `{clubNumber}` | `CreateCheckoutResponse` — `checkoutId`, `csrfToken`, `captureMode: 'paypage'\|'mock'`, `adapterMode`, `resumed`, `club`, `offer` (`amountMinor`, `currency`, `perks`, `durationDays`), `terms` (`version`, `html`), `snapshot` (step + safe state for reload recovery). Sets the cookie. With a live cookie for the same club the existing checkout is returned (`resumed:true`) instead of a new one. |
+| `POST /checkouts/:id/identify` | `{contact}` | `{outcome:'challenge', contact:{channel, masked}, challenge, debug?}` \| `{outcome:'newVisitor', contact:{channel, display}}` \| `{outcome:'ambiguous', contact:{channel, masked}}`. `debug.code` exists only in mock mode. |
+| `POST /checkouts/:id/challenge` | `{action:'resend'\|'switch-channel'}` | `{contact:{channel, masked?}, challenge, debug?}` — after a switch `masked` is absent (never a mask of an unsubmitted address). |
+| `POST /checkouts/:id/verify` | `{code}` | `{person, contact, order}` — session rotated, checkout bound to member UUID + home club; `person` carries full value for the typed channel and a mask for the other. |
+| `DELETE /checkouts/:id/identity` | — | `{ok:true, contactHint?}` — challenge, binding, hosted sessions and order revoked; safe hint kept. |
+| `GET /checkouts/:id/wallet` | — | `{status:'ok', cards:[{selectionRef, brand, last4, source}]}` \| `{status:'unavailable'}` — verified checkouts only (`NOT_VERIFIED` otherwise). Empty is `ok` with `[]`. |
+| `PUT /checkouts/:id/order` | `{visitDate?, terms?:{accepted, method?}, saveCard?}` | `{order}` with authoritative `amountMinor`, `visitDate` (defaults to club-local today when the shell is created), `minVisitDate`, `maxVisitDate?`, `terms.version`, `ready`. Accepting terms requires `method`; a terms version change since the shell was created clears acceptance and answers 409 `STATE_CONFLICT` until the visitor re-accepts the current text. |
+| `GET /checkouts/:id/capture?sessionId=` | — | `{payPageSessionId, status:'pending'\|'ready'\|'invalid'\|'closed', brand?, last4?}` — readiness only; the token never leaves the BFF. |
+| `POST /checkouts/:id/capture/mock` | `{card}` | Mock mode only (404 otherwise): creates a checkout-owned mock hosted session for a fixture card; `{payPageSessionId, status, brand, last4}`. |
+| `POST /checkouts/:id/purchases` | header `Idempotency-Key` (`^[A-Za-z0-9_-]{8,128}$`); `{payment:{kind:'saved', selectionRef}\|{kind:'hosted', payPageSessionId}, profile?:{firstName, lastName, secondaryContact?}}` | `PurchaseResult` (see §5): 201 for a newly executed attempt, 200 for a replay. Pre-orchestration checks are typed errors and leave no operation record: 400 profile validation (prototype messages), 401 `NOT_VERIFIED`, 403 `FORBIDDEN` (selection ref not this checkout's / saved card from a new visitor), 404 (hosted session not owned), 409 `ORDER_NOT_READY` / `CAPTURE_NOT_READY`. Every orchestration outcome (`COMPLETE`, `FAILED`, `RECONCILING`) is a 2xx result; a decline is `state:'FAILED'` with `failure.code:'PAYMENT_DECLINED'` rather than a 402 envelope. Same key + same payload replays; different payload → 409 `IDEMPOTENCY_CONFLICT`; second concurrent attempt (any key) → 409 `PURCHASE_IN_PROGRESS` with `Retry-After: 2`. |
+| `GET /checkouts/:id/purchases/:pid` | — | `PurchaseResult` for refresh recovery. |
+| `POST /checkouts/:id/purchases/:pid/wallet-retry` | — | `PurchaseResult`; retries only the wallet step (`wallet.status` must be `failed-retryable` or `unavailable`, else 409); never authorizes or sells again; verified identity required (401 `NOT_VERIFIED`). A verified person may retry a purchase from an earlier checkout of their own (matched by the bound member id); anyone else sees 404. |
+| `DELETE /checkouts/:id` | — | `{ok:true, contactHint?}`; cookie cleared; durable operation records kept. |
+| `POST /api/pay-page/session/short-term-pass` | `{checkoutId}` | `{url, sessionId, mode, status}` — due-today add-token session, server-fixed `paymentMethods:['CARD']`, `deferAuthorizationToPayment:true`, `purpose:'short-term-pass'`, owned by the checkout. Generic `GET /api/pay-page/session/:id` and `PUT …/close` refuse pass-purpose sessions (404). |
+
+Deviation from the plan table: the plan listed eleven browser routes; execution added `GET /checkouts/:id/capture` (readiness poll, because the generic Pay Page poll now refuses pass sessions) and the mock-only `POST /checkouts/:id/capture/mock`. `PAYMENT_DECLINED` is reported inside `PurchaseResult.failure` (2xx) rather than as a 402 envelope so the UI has one result shape. Recorded under "Scope changes" in the blockers file.
+
+## 5. Purchase result and state machine
+
+```
+PurchaseResult {
+  purchaseId, state: 'COMPLETE'|'FAILED'|'RECONCILING'|'PROCESSING', checkpoint,
+  failure?: {step, code, message, retryable},
+  payment:  {status: authorized|captured|declined|voided|unknown|not-attempted|refunded, brand?, last4?},
+  person:   {created, firstName?},
+  wallet:   {status: saved|not-requested|failed-retryable|unavailable, brand?, last4?},
+  sale:     {status: finalized|failed|not-attempted|refunded, receiptNumber?},
+  pass:     {status: issued|not-issued|not-attempted, passId?, visitDate?, qrPayload?},
+  delivery: {status: sent|pending|failed|not-attempted, channel?, masked?}
+}
+```
+
+Checkpoints: `VALIDATED → AUTHORIZED → PERSON_PERSISTED → WALLET_RESULT → SALE_FINALIZED → ISSUED → COMPLETE`, plus `FAILED` and `RECONCILING`. The UI shows "Paid", "saved to your wallet" and "We emailed/texted it" only from the corresponding confirmed field.
+
+Checkout steps (`snapshot.step`): `identify → challenge → recognized | newVisitor → complete`, plus `revoked`. Transitions are atomic in the store; `verify` consumes the challenge and rotates the session id; `DELETE /identity` returns to `identify`; `DELETE /checkouts/:id` → `revoked`. A `FAILED` purchase leaves the checkout on its step so the visitor can correct and retry (new key); a contact race at prospect creation resets the checkout to `identify`.
+
+Orchestration order and failure handling (as executed, test-pinned in `routes/shortTermPass/__tests__/purchase.test.ts`): validate → authorize → persist prospect (new visitors; second contact stored as a lookup key) → consented wallet write (saved-card payments record `wallet.status:'saved'` without a write; `saveCard:false` → `not-requested`) → finalize sale + capture → issue (one bounded retry, then refund) → deliver (never blocks completion). Declined → `FAILED` with nothing persisted. Authorization timeout → one `status()` call by reference, never a second authorization; still unknown → `RECONCILING`. Prospect failure or contact race → void; unknown void → `RECONCILING`. Wallet failure → `failed-retryable` (write) or `unavailable` (owner resolution), sale continues, `wallet-retry` resumes only that step. Sale failure → void, prospect and saved card kept. Issuance failure → refund, `pass.status:'not-issued'`, `sale.status:'refunded'`. Delivery failure → `delivery.status:'failed'`, pass stays visible.
+
+## 6. Order and consent rules
+
+Visit date is a calendar date (`YYYY-MM-DD`) in the club timezone; minimum club-local today; maximum from the catalog when set; re-validated at purchase. Amounts are integer minor units + currency; the browser never computes price. Terms acceptance is an affirmative act (`checkbox` or `modal`) recorded with `version`, `method` and server time; opening the modal is not acceptance; a changed terms version clears acceptance. `saveCard` defaults to `true` and is independent of terms.
+
+## 7. Fixture identities and fault switch (mock adapters)
+
+| Person | Kind | Email | Phone | Card | Purpose |
+|---|---|---|---|---|---|
+| Jordan Reyes | prospect | `jordan.reyes@email.com` | `5550192231` | Visa 4242 "Saved in the app last week" | Riverside demo fixture, U6/U11 (changed from `m@m.com` by the 2026-09-09 addendum) |
+| Casey Morgan | member | `casey@example.com` | `5550193344` | Mastercard 4444 "Saved at the front desk" | Member match, U15 |
+| Riley Chen | prospect | `riley@example.com` | `5550195566` | none | No usable card, U14 |
+| Dana Whitfield | prospect | `dana@example.com` | — | Visa 1111 expired | Expired card filtered → empty wallet, U14 |
+| Morgan Blake | prospect | `morgan@example.com` | `5550190002` | Visa 0002 | Saved-card decline |
+| Sam Patel / Alex Patel | prospects | `sam@example.com` / `alex@example.com` | both `5550197788` | none | Ambiguous phone, U9 |
+
+Mock capture fixture cards: `visa-4242` (approved), `mastercard-4444`, `visa-0002` (declined), `visa-0003` (authorization timeout → status resolves authorized), `visa-1111-expired` (invalid token). Fixture clubs (addendum): `90030` **Riverside Athletic Club** (open; one product "1-day pass" USD 18.00, no perks; default demo club; all fixture people are homed here), `90031` Riverside — Eastside (`onlineProspects=false`), `90032` Riverside — Northside (club-authored terms, `America/New_York`), `90033` **Core Health and Fitness Club — South** (second organization; "Gym Floor" USD 25.00 with the day-pass.html perks; multi-club tests). Fixture UUIDs are fixed and valid. Mock purchase fixtures: receipts `R-000001…`, pass ids `pass_<8 hex>`, QR payload `STP1|<passId>|<club>|<visitDate>|<12-hex sig>`.
+
+Fault switch (`STP_MOCK_FAULTS` at boot or the in-process `faultSwitch` used by tests and the demo): `decline`, `auth-timeout`, `prospect-failure`, `wallet-failure`, `wallet-unavailable`, `sale-failure`, `issue-failure`, `delivery-failure`, `void-unknown`. Never a browser API.
+
+## 8. Adapter register (C7)
+
+Selection: `services/shortTermPass/adapters/index.ts` builds the set once from `STP_ADAPTER_MODE`; `adapters.capabilities()` prints the honest capability table (used by the demo script and E5). Every live capability without an adapter fails closed with `NOT_ENABLED` (501), never a fixture success.
+
+| Port | Mock that ships | Platform adapter this sprint | Real upstream it stands in for | Decision needed | Owner slot |
+|---|---|---|---|---|---|
+| `ClubCatalogPort` | `MockClubCatalog` (clubs 90030–90033, fixture offers, prototype terms template, `version = sha256(html)`) | `PlatformClubCatalog`: MICO `getClub` (name, `onlineProspects`, `prospectTerms`) + shared `LocationResolver` (org/location, TTL cache); offer still the fixture | MICO club settings; POS sale items for the offer and price | OQ-6 catalog, tax, timezone, terms review | PRODUCT |
+| `CheckoutStorePort` | `InMemoryCheckoutStore` | same (process-local; production refuses mock mode) | shared atomic checkout store | OQ-7 | PLATFORM+BFF |
+| `PurchaseStorePort` | `InMemoryPurchaseStore` (idempotency key + fingerprint, one active attempt per checkout) | same (process-local) | durable operation store with reconciliation owner | OQ-7 | PLATFORM+BFF |
+| `IdentityDirectoryPort` | `MockIdentityDirectory` (seeded §7; created prospects persist for the process) | none → `NOT_ENABLED` | club-scoped lookup by phone/email (no MICO endpoint exists) | OQ-1 | IDENTITY |
+| `ProspectPort` | `MockIdentityDirectory.create` (idempotent by purchase id; contact-race → `conflict`) | none → `NOT_ENABLED` | lean prospect creation from name + contacts | OQ-1 | IDENTITY |
+| `VerificationPort` | `MockOutbox.send` (inspectable; codes never logged) | none → `NOT_ENABLED` | email-publisher-service + SMS provider | OQ-2 | IDENTITY+SECURITY |
+| `DeliveryPort` | `MockOutbox.deliver` | none → `NOT_ENABLED` | email-publisher-service + SMS provider | OQ-2, OQ-5 | PASS/DELIVERY |
+| `PaymentPort` | `MockPaymentGateway` (authorize/status/capture/void/refund; idempotent by purchase id; last4 0002 declines, 0003 times out) | none → `NOT_ENABLED` | Ignite Payment Gateway (token → PG token mapping, stored-card authorization without an agreement) | OQ-3 | PAYMENTS |
+| `PassSalePort` | `MockPassSale` (receipt + pass + demo QR; idempotent by purchase id) | none → `NOT_ENABLED` | datatrak `/pos/onlineSale.spr` or gateway charge + POS record; issuance service | OQ-3, OQ-5 | PAYMENTS+PASS |
+| `WalletPort` | `MockWallet` (owners keyed `(externalId, MEMBER, org)`, seeded cards, `providedId` idempotency) | `PlatformWallet`: reads behind `STP_WALLET_READS` (owner query + `GET /wallet-entry/credit-card?q=`), writes typed against `ICreateWalletOwner` / `ICreateWalletCreditCard` but `NOT_ENABLED` until `STP_WALLET_WRITES` | universal-wallet `/wallet-entry-owner`, `/wallet-entry/credit-card` | OQ-4; L3 (dedup-key deployment, owner-scoped rsql path) | WALLET |
+| `PayPageSessionReader` | `MockPayPageSessionReader` (fixture token by session prefix; used with `MockCardCapture`) | `PlatformPayPageSessionReader` (OAuth client credentials via `OAuthTokenService`, `GET /ors/payment-token/session/{id}`); live in dev once the `PAY_PAGE_*` variables exist (BLOCKERS B1) | Order Service session API (already used by the payPage route) | credentials locally (B1) | PAYMENTS |
+
+## 9. Spike outcomes (A6)
+
+**A6(a) Pay Page hosted capture with dev credentials.** Blocked at execution time: `PAY_PAGE_API_URL`, `PAY_PAGE_CLIENT_ID`, `PAY_PAGE_CLIENT_SECRET`, `PAY_PAGE_CONSUMER_ID`, `PAY_PAGE_ORIGIN` and `ABC_CORE_API_URL` are absent from the BFF `.env` and from the environment of the running dev BFF (verified by key-name inspection only; no values printed). The existing payPage route therefore cannot create sessions locally either. The platform `PayPageSessionReader` is implemented against the same OAuth client-credentials flow and session API the payPage route already uses (`GET {PAY_PAGE_API_URL}/ors/payment-token/session/{id}` with `ABCFS-TENANT-ID`), reads `result.NEW_PAYMENT_METHOD.TOKEN[0]` (`id`, `creditCardBrand`, `accountNumberLastFour`/`creditCardNumberLastFour`, `expirationMonth/Year`, `accountHolderName`, `tokenStatus`) as the existing UI hook does, and is unit-tested with mocked fetch. Gate G4 stays pending: "mock demo complete; hosted capture unverified".
+
+**A6(b) Owner-scoped wallet entry query.** `@abc/bff-toolkit` 11.29.1 `UniversalWallet` exposes `getAllWalletEntries({q, sort, page, size})` (rsql, `GET /wallet-entry?q=`) and `getWalletOwners({q})` (`GET /wallet-entry-owner?q=`) in addition to the deprecated QA-only `getWalletEntries(externalId)`. universal-wallet also exposes `GET /wallet-entry/credit-card?q=<rsql>` (paged, auto-filtered to `CREDIT_CARD`) — index leaf `repos/universal-wallet/walletentry/credit-card.md` L43. Decision: the platform adapter resolves the owner with `GET /wallet-entry-owner?q=externalId==<memberId>;ownerType==MEMBER` under the club organization tenancy (`ABCFS-TENANT-ID`), then lists entries with `GET /wallet-entry/credit-card?q=<owner-scoped rsql>`; no deprecated call, no assignment roles. Transport is `fetch` with the shared OAuth client-credentials service (same pattern as the payPage route) because this BFF does not bootstrap the toolkit's platform auth; the toolkit client would need `authorization.initialize` plus the ALS wiring that `server.ts` never runs. The exact owner-association rsql attribute path and whether the deployed dev universal-wallet accepts these queries for a `MEMBER` owner without agreement metadata are L3 evidence; the adapter stays behind `STP_WALLET_READS`.
+
+**A6(c) LaunchDarkly access.** The dev SDK key in the BFF `.env` reaches the dev project. `oj-short-term-pass-checkout` does not exist yet: evaluation returned `{"value":false,"reason":{"kind":"ERROR","errorKind":"FLAG_NOT_FOUND"}}` for `{kind:'club', key:'90030'}`, i.e. the default `false` (fail closed). Handoff: create the flag (club kind, default off) — owner to be named at kickoff. Local runs use `STP_LOCAL_FLAG_OVERRIDE=true`.
+
+## 10. Readiness register (E5)
+
+Classification as of 2026-09-10 (executor). **Proven locally** = exercised end-to-end through the real router/orchestrator with mock adapters and pinned by tests; **contract only** = typed port, mock and (where noted) platform adapter exist, no live traffic; **blocked** = needs something outside this checkout. Owners are slots to be named at kickoff.
+
+| Capability | Status | Evidence | Live gate | Owner slot |
+|---|---|---|---|---|
+| Club + flag gating on every pass route and the HTML entry | proven locally (flag via `STP_LOCAL_FLAG_OVERRIDE`; LD flag itself missing) | `requireShortTermPass.test.ts`, `static/__tests__/index.test.ts`; LD dev returns `FLAG_NOT_FOUND` (B2) | flag creation | PRODUCT / PLATFORM |
+| Opaque checkout session, CSRF, Origin, expiry | proven locally (in-memory store) | `session.test.ts`, `checkouts.test.ts` | L4 shared store | PLATFORM+BFF |
+| Contact lookup, one-time code, verify, member-id binding | proven locally against the mock directory; **no live identity service exists** | `identify.test.ts`, `verify.test.ts`, `challenge.test.ts` | L1 (OQ-1, OQ-2) | IDENTITY+SECURITY |
+| Wallet reads by `(memberId, MEMBER, org)` | proven locally (mock); platform adapter typed, dark behind `STP_WALLET_READS`, owner-scoped rsql path unverified | `wallet.test.ts`, `platformWallet.test.ts` | L3 | WALLET |
+| Wallet writes (owner + entry, allowlisted metadata, `providedId`) | proven locally (mock); platform adapter `NOT_ENABLED` until `STP_WALLET_WRITES` and the backend prospect lane ship | `walletWrites.test.ts`, `purchase.test.ts` U12/U13 | L3 | WALLET |
+| Hosted card capture (Pay Page) | **blocked** — `PlatformPayPageSessionReader` and the pass-scoped session route are implemented and unit-tested; no credentials locally (B1); mock capture proven | `payPageSession.test.ts`, `payPage/__tests__/index.test.ts`, `session.test.ts`; demo `--hosted` → BLOCKED | G4 real run | PAYMENTS+QA |
+| Authorization / capture / void / refund | contract only (mock gateway) | `purchaseMocks.test.ts`, `purchase.test.ts` failure table | L2 (OQ-3) | PAYMENTS |
+| Prospect creation with second contact | contract only (mock directory) | `purchase.test.ts` U13 | L1 (OQ-1) | IDENTITY |
+| Sale finalization, pass issuance, QR | contract only (mock) | `purchase.test.ts`, `purchaseMocks.test.ts` | L2 (OQ-3, OQ-5) | PAYMENTS+PASS |
+| Code and pass delivery (email / SMS) | contract only (mock outbox) | `identify.test.ts`, `purchase.test.ts` | L1 (OQ-2) | IDENTITY / PASS-DELIVERY |
+| Idempotent purchase, one active attempt, checkpoints, wallet-only retry | proven locally (in-memory operation store) | `idempotency.test.ts`, `purchase.test.ts` | L4 durable store + reconciliation owner (OQ-7) | PLATFORM+BFF |
+| Redacted logging with correlation ids | proven locally | `log.test.ts`, demo output | — | BFF |
+| Catalog (club, offer, price, timezone, terms) | fixture only; platform adapter reads club name/settings from MICO, offer stays fixture | `catalog.test.ts`, `platformCatalog.test.ts` | L5 (OQ-6) | PRODUCT |
+| UI flow per the Riverside demos with the kept terms gate | proven locally against the contract (mocked service) + HTTP smoke through the dev BFF; browser visual pass not done | `online-join-ui/__tests__/routes/ShortTermPass/**`, `docs/validation/short-term-pass-ui.md` | G2 design sign-off | DESIGN / UI |
+
+Completion vocabulary for this sprint: **sprint implementation complete; local checkout complete; live integration blocked** — and, for G4, **"mock demo complete; hosted capture unverified"**.

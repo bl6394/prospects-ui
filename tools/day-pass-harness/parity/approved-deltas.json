@@ -1,0 +1,110 @@
+{
+  "$comment": "Approved deltas between Design HTML v1.2 and the build (Sprint 0002 A4). Each entry cites the PRD/CR/plan line that approves it. Only a human may add entries; the parity runner exempts exactly what is listed and reports everything else.",
+  "version": 1,
+  "deltas": [
+    {
+      "id": "AD-01",
+      "kind": "extra-element",
+      "states": [
+        "identify"
+      ],
+      "build": "#main .lead .dt-help",
+      "text": "We'll email you a one-time code and your receipt",
+      "reason": "Transactional email notice under the email field; the prototype hides #identHelp until an error.",
+      "cite": "PRD v3.4 §4.5 Tier 0 (D35); SPRINT-0002 U1 'approved delta'"
+    },
+    {
+      "id": "AD-02",
+      "kind": "extra-element",
+      "states": [
+        "new-visitor"
+      ],
+      "build": "#main #second ~ .dt-help.notice, #main .marketing",
+      "reason": "Transactional-SMS notice under the mobile field and the unchecked marketing opt-in row; absent from v1.2.",
+      "cite": "CR-09; PRD D32b, D37, §4.5; SPRINT-0002 U6"
+    },
+    {
+      "id": "AD-03",
+      "kind": "extra-element",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "build": "#main #recognizedMobile",
+      "reason": "Required Mobile field under Your info when the recognised person has no mobile on file (not rendered for the m@m.com twin, so no pixel effect in the loop).",
+      "cite": "PRD D37; SPRINT-0002 U5 'approved delta'"
+    },
+    {
+      "id": "AD-04",
+      "kind": "region",
+      "states": [
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "proto": "#main .payfields",
+      "build": "#main .card-slot",
+      "reason": "The Pay Page hosted frame (or TestCardPanel with hooks) replaces the mocked card fields; internals masked, wrapper bounds and neighbouring spacing compared.",
+      "cite": "CR-03, CR-04; PRD D44; SPRINT-0002 §Parity loop masks"
+    },
+    {
+      "id": "AD-05",
+      "kind": "attribute",
+      "states": "*",
+      "element": "shell.switcher",
+      "reason": "Static location label: same text and box, rendered without aria-haspopup / listbox semantics.",
+      "cite": "SPRINT-0002 interview decision 'static location label'; intent reconciliation row Header/nav"
+    },
+    {
+      "id": "AD-06",
+      "kind": "extra-element",
+      "states": "*",
+      "build": ".dt-alert.danger, .card-slot .retry",
+      "reason": "Retry / error affordances (session failure, 503 lookup retry, embed load failure) exist only in error states outside the eleven parity states.",
+      "cite": "SPRINT-0002 U9, U15"
+    },
+    {
+      "id": "AD-07",
+      "kind": "extra-element",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "build": "#main .dt-alert.warning",
+      "reason": "Sprint 0001 wallet-retry alert for a failed save; not reachable in the parity runs (saves succeed).",
+      "cite": "SPRINT-0002 U17 'approved delta'"
+    },
+    {
+      "id": "AD-08",
+      "kind": "text",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "element": "side.day.help",
+      "reason": "The build defaults the date to club-local today, so the prototype's blank-date help string 'Choose the day you'll visit…' is never rendered; the prototype driver sets #day to the same day before capture.",
+      "cite": "CR §D 'Date selector — confirmed correct'; SPRINT-0002 interview 'date defaults to club-local today'"
+    },
+    {
+      "id": "AD-09",
+      "kind": "text",
+      "states": [
+        "dialog-pass-terms"
+      ],
+      "element": "dialog.body",
+      "reason": "Refunds paragraph follows PRD D15/D22 ('Refunds: none online. Any refund is at the club's discretion, in club.') instead of v1.2's 'Full refund any time before the first valid day'.",
+      "cite": "PRD v3.4 D15, D22; SPRINT-0002 §Consent model"
+    },
+    {
+      "id": "AD-10",
+      "kind": "style",
+      "states": "*",
+      "element": "shell.tabs",
+      "props": [
+        "width"
+      ],
+      "reason": "At 375 px the prototype tab row overflows its 375 px container (padding 16 px + four tabs); the build clips the same row with overflow-x auto. Only width is exempt; text, font and colours are compared.",
+      "cite": "SPRINT-0002 C8a 'v1.2 tab-row media rule'; BROWSER-QA P1-6 (no horizontal overflow)"
+    }
+  ]
+}

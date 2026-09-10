@@ -1,0 +1,1117 @@
+{
+  "$comment": "Sprint 0002 A4 parity inventory: prototype→build selector pairs per state. The build mirrors the v1.2 ids and classes so most pairs are identical; `build` differs only where the plan approves a structural delta. Text is whitespace-normalised; styles default to `styleProps`; geometry (height/width) rounds to 0.5 px.",
+  "version": 1,
+  "prototype": {
+    "file": "docs/prd/day-pass-v1.2.html",
+    "sha256": "3b24d98e6afb154d0a07dcbb4eaa7cb40b3c4097d0588170f62bc70b22b5d7c2"
+  },
+  "build": {
+    "entry": "/signup/day-pass?club=90033",
+    "club": "90033",
+    "recognizedEmail": "m@m.com",
+    "newVisitorEmail": "parity-new-visitor@stp.test"
+  },
+  "widths": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "name": "phone",
+      "width": 375,
+      "height": 900
+    }
+  ],
+  "states": [
+    "identify",
+    "code-entry",
+    "recognized",
+    "recognized-new-card",
+    "new-visitor",
+    "done-saved",
+    "done-not-saved",
+    "dialog-waiver",
+    "dialog-pass-terms",
+    "dialog-stored-card",
+    "dialog-privacy"
+  ],
+  "styleProps": [
+    "font-family",
+    "font-size",
+    "font-weight",
+    "line-height",
+    "letter-spacing",
+    "color",
+    "background-color",
+    "border-color",
+    "border-radius",
+    "padding",
+    "height",
+    "width"
+  ],
+  "pixel": {
+    "threshold": 0.1,
+    "maxDiffRatio": 0.005
+  },
+  "masks": [
+    {
+      "id": "card-internals",
+      "proto": "#main .payfields",
+      "build": "#main .card-slot",
+      "states": [
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "inset": 1,
+      "maxAreaRatio": 0.35
+    },
+    {
+      "id": "qr-modules",
+      "proto": "#main .pass .qr",
+      "build": "#main .pass .qr",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "inset": 0,
+      "maxAreaRatio": 0.05
+    },
+    {
+      "id": "toast",
+      "proto": ".toast",
+      "build": ".toast",
+      "states": "*",
+      "inset": 0,
+      "maxAreaRatio": 0.05
+    }
+  ],
+  "hiddenOnPrototype": [
+    ".proto",
+    "#syslog"
+  ],
+  "elements": [
+    {
+      "id": "shell.header",
+      "proto": "header.dt-header",
+      "build": "header.dt-header",
+      "states": "*",
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "shell.brand.word",
+      "proto": ".dt-header .dt-brand .word",
+      "build": ".dt-header .dt-brand .word",
+      "states": "*",
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "shell.brand.tag",
+      "proto": ".dt-header .dt-brand .tag",
+      "build": ".dt-header .dt-brand .tag",
+      "states": "*",
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "shell.switcher",
+      "proto": ".dt-header .dt-switcher",
+      "build": ".dt-header .dt-switcher",
+      "states": "*",
+      "text": true,
+      "geometry": true,
+      "note": "static label in the build (approved delta AD-05): text and box compared, not tag or aria"
+    },
+    {
+      "id": "shell.secure",
+      "proto": ".dt-header .end",
+      "build": ".dt-header .end",
+      "states": "*",
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "shell.tabs",
+      "proto": "nav.dt-tabs",
+      "build": "nav.dt-tabs",
+      "states": "*",
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "shell.tab.current",
+      "proto": "nav.dt-tabs .dt-tab[aria-current=page]",
+      "build": "nav.dt-tabs .dt-tab[aria-current=page]",
+      "states": "*",
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "page",
+      "proto": ".page",
+      "build": ".page",
+      "states": "*",
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "main",
+      "proto": "main.dt-widget",
+      "build": "main.dt-widget",
+      "states": "*",
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "aside",
+      "proto": "aside.dt-widget.secondary",
+      "build": "aside.dt-widget.secondary",
+      "states": "*",
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "main.title",
+      "proto": "#main .dt-widget-header h1",
+      "build": "#main .dt-widget-header h1",
+      "states": [
+        "identify",
+        "code-entry",
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "main.sub",
+      "proto": "#main .dt-widget-header p",
+      "build": "#main .dt-widget-header p",
+      "states": [
+        "identify",
+        "code-entry",
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "identify.offer",
+      "proto": "#main .offer",
+      "build": "#main .offer",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "identify.offer.chosen",
+      "proto": "#main .offer .chosen",
+      "build": "#main .offer .chosen",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "identify.offer.price",
+      "proto": "#main .offer .price",
+      "build": "#main .offer .price",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "identify.offer.name",
+      "proto": "#main .offer .name",
+      "build": "#main .offer .name",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "identify.offer.perks",
+      "proto": "#main .offer ul",
+      "build": "#main .offer ul",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "identify.email.label",
+      "proto": "#main label[for=ident]",
+      "build": "#main label[for=ident]",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "identify.email.input",
+      "proto": "#main #ident",
+      "build": "#main #ident",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "identify.continue",
+      "proto": "#main #continue",
+      "build": "#main #continue",
+      "states": [
+        "identify"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "identify.change",
+      "proto": "#main #changeContact",
+      "build": "#main #changeContact",
+      "states": [
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "code.label",
+      "proto": "#main #otpLabel",
+      "build": "#main #otpLabel",
+      "states": [
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "code.otp",
+      "proto": "#main #otp",
+      "build": "#main #otp",
+      "states": [
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "code.otp.input",
+      "proto": "#main #otp input:first-child",
+      "build": "#main #otp input:first-child",
+      "states": [
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "code.help",
+      "proto": "#main #otp + .dt-help",
+      "build": "#main #otp + .dt-help",
+      "states": [
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "code.resend",
+      "proto": "#main #resend",
+      "build": "#main #resend",
+      "states": [
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "code.verify",
+      "proto": "#main #verifyBtn",
+      "build": "#main #verifyBtn",
+      "states": [
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "recognized.alert",
+      "proto": "#main .dt-alert.success",
+      "build": "#main .dt-alert.success",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "recognized.alert.title",
+      "proto": "#main .dt-alert.success b",
+      "build": "#main .dt-alert.success b",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "recognized.alert.body",
+      "proto": "#main .dt-alert.success .body",
+      "build": "#main .dt-alert.success .body",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "section.title.first",
+      "proto": "#main .section:nth-of-type(1) .section-title",
+      "build": "#main .section:nth-of-type(1) .section-title",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "kv.name",
+      "proto": "#main .kv:nth-of-type(1)",
+      "build": "#main .kv:nth-of-type(1)",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "kv.email",
+      "proto": "#main .kv:nth-of-type(2)",
+      "build": "#main .kv:nth-of-type(2)",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "kv.mobile",
+      "proto": "#main .kv:nth-of-type(3)",
+      "build": "#main .kv:nth-of-type(3)",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "section.title.payment",
+      "proto": "#main .section:nth-of-type(2) .section-title",
+      "build": "#main .section:nth-of-type(2) .section-title",
+      "states": [
+        "recognized",
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "paysel",
+      "proto": "#main .paysel",
+      "build": "#main .paysel",
+      "states": [
+        "recognized"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "paysel.txt",
+      "proto": "#main .paysel .txt",
+      "build": "#main .paysel .txt",
+      "states": [
+        "recognized"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "paysel.source",
+      "proto": "#main .paysel .txt small",
+      "build": "#main .paysel .txt small",
+      "states": [
+        "recognized"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "recognized.diffCard",
+      "proto": "#main #diffCard",
+      "build": "#main #diffCard",
+      "states": [
+        "recognized"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "newcard.help",
+      "proto": "#main .section:nth-of-type(2) .dt-help",
+      "build": "#main .section:nth-of-type(2) .dt-help",
+      "states": [
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "newcard.useSaved",
+      "proto": "#main #useSaved",
+      "build": "#main #useSaved",
+      "states": [
+        "recognized-new-card"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "newvisitor.edit",
+      "proto": "#main #editContact",
+      "build": "#main #editContact",
+      "states": [
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "newvisitor.first.label",
+      "proto": "#main label[for=first]",
+      "build": "#main label[for=first]",
+      "states": [
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "newvisitor.first",
+      "proto": "#main #first",
+      "build": "#main #first",
+      "states": [
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "newvisitor.last.label",
+      "proto": "#main label[for=last]",
+      "build": "#main label[for=last]",
+      "states": [
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "newvisitor.second.label",
+      "proto": "#main label[for=second]",
+      "build": "#main label[for=second]",
+      "states": [
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "newvisitor.second",
+      "proto": "#main #second",
+      "build": "#main #second",
+      "states": [
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "newvisitor.second.help",
+      "proto": "#main #second + .dt-help",
+      "build": "#main #second + .dt-help",
+      "states": [
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "newvisitor.payment.title",
+      "proto": "#main .section .section-title",
+      "build": "#main .section .section-title",
+      "states": [
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "card.region",
+      "proto": "#main .payfields",
+      "build": "#main .card-slot",
+      "states": [
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true,
+      "styles": [
+        "width",
+        "border-radius"
+      ],
+      "note": "hosted region: wrapper bounds compared, internals masked (AD-04)"
+    },
+    {
+      "id": "savecard",
+      "proto": "#main .savecard",
+      "build": "#main .savecard",
+      "states": [
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "savecard.title",
+      "proto": "#main .savecard .t",
+      "build": "#main .savecard .t",
+      "states": [
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "savecard.desc",
+      "proto": "#main .savecard .d",
+      "build": "#main .savecard .d",
+      "states": [
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "savecard.switch",
+      "proto": "#main .savecard .switch",
+      "build": "#main .savecard .switch",
+      "states": [
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "done.pass",
+      "proto": "#main .pass",
+      "build": "#main .pass",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "done.qr",
+      "proto": "#main .pass .qr",
+      "build": "#main .pass .qr",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "done.big",
+      "proto": "#main .pass .big",
+      "build": "#main .pass .big",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "done.sm",
+      "proto": "#main .pass .sm",
+      "build": "#main .pass .sm",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "done.saved.alert",
+      "proto": "#main .dt-alert.success",
+      "build": "#main .dt-alert.success",
+      "states": [
+        "done-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "done.saved.title",
+      "proto": "#main .dt-alert.success b",
+      "build": "#main .dt-alert.success b",
+      "states": [
+        "done-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "done.saved.body",
+      "proto": "#main .dt-alert.success .body",
+      "build": "#main .dt-alert.success .body",
+      "states": [
+        "done-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "done.notsaved",
+      "proto": "#main .dt-widget-content > .dt-help",
+      "build": "#main .dt-widget-content > .dt-help",
+      "states": [
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "done.getApp",
+      "proto": "#main #getApp",
+      "build": "#main #getApp",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "done.again",
+      "proto": "#main #again",
+      "build": "#main #again",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.title",
+      "proto": "#sideTitle",
+      "build": "#sideTitle",
+      "states": [
+        "identify",
+        "code-entry",
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.sub",
+      "proto": "#sideSub",
+      "build": "#sideSub",
+      "states": [
+        "identify",
+        "code-entry",
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.skeleton.1",
+      "proto": "#summary .skeleton:nth-of-type(1)",
+      "build": "#summary .skeleton:nth-of-type(1)",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "side.skeleton.2",
+      "proto": "#summary .skeleton:nth-of-type(2)",
+      "build": "#summary .skeleton:nth-of-type(2)",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "side.day.label",
+      "proto": "#summary label[for=day]",
+      "build": "#summary label[for=day]",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.day.input",
+      "proto": "#summary #day",
+      "build": "#summary #day",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "side.day.help",
+      "proto": "#summary .dayfield .dt-help",
+      "build": "#summary .dayfield .dt-help",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.row.item",
+      "proto": "#summary .srow:nth-of-type(1)",
+      "build": "#summary .srow:nth-of-type(1)",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.row.item.k",
+      "proto": "#summary .srow:nth-of-type(1) .k",
+      "build": "#summary .srow:nth-of-type(1) .k",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.row.item.v",
+      "proto": "#summary .srow:nth-of-type(1) .v",
+      "build": "#summary .srow:nth-of-type(1) .v",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.row.paying",
+      "proto": "#summary .srow:nth-of-type(2)",
+      "build": "#summary .srow:nth-of-type(2)",
+      "states": [
+        "recognized",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true,
+      "note": "Paying with (recognized) / Valid (done)"
+    },
+    {
+      "id": "side.row.paidwith",
+      "proto": "#summary .srow:nth-of-type(3)",
+      "build": "#summary .srow:nth-of-type(3)",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.total",
+      "proto": "#summary .total",
+      "build": "#summary .total",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.agree",
+      "proto": "#summary .agree",
+      "build": "#summary .agree",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "side.adult",
+      "proto": "#summary .agree .dt-check:nth-of-type(1) .t",
+      "build": "#summary .agree .dt-check:nth-of-type(1) .t",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.adult.cb",
+      "proto": "#adultCb",
+      "build": "#adultCb",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "side.waiver",
+      "proto": "#summary .agree .dt-check:nth-of-type(2) .t",
+      "build": "#summary .agree .dt-check:nth-of-type(2) .t",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.waiver.cb",
+      "proto": "#waiverCb",
+      "build": "#waiverCb",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "side.sentence",
+      "proto": "#summary .agree .sentence",
+      "build": "#summary .agree .sentence",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.pay",
+      "proto": "#sidePay",
+      "build": "#sidePay",
+      "states": [
+        "recognized",
+        "recognized-new-card",
+        "new-visitor"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "side.fine",
+      "proto": "#fine",
+      "build": "#fine",
+      "states": [
+        "identify",
+        "code-entry",
+        "recognized",
+        "recognized-new-card",
+        "new-visitor",
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "dialog",
+      "proto": "#modal",
+      "build": "#modal",
+      "states": [
+        "dialog-waiver",
+        "dialog-pass-terms",
+        "dialog-stored-card",
+        "dialog-privacy"
+      ],
+      "text": false,
+      "geometry": true
+    },
+    {
+      "id": "dialog.title",
+      "proto": "#mTitle",
+      "build": "#mTitle",
+      "states": [
+        "dialog-waiver",
+        "dialog-pass-terms",
+        "dialog-stored-card",
+        "dialog-privacy"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "dialog.body",
+      "proto": "#mBody",
+      "build": "#mBody",
+      "states": [
+        "dialog-waiver",
+        "dialog-pass-terms",
+        "dialog-stored-card",
+        "dialog-privacy"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "dialog.meta",
+      "proto": "#mMeta",
+      "build": "#mMeta",
+      "states": [
+        "dialog-waiver",
+        "dialog-pass-terms",
+        "dialog-stored-card",
+        "dialog-privacy"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "dialog.close",
+      "proto": "#mCloseBtn",
+      "build": "#mCloseBtn",
+      "states": [
+        "dialog-waiver",
+        "dialog-pass-terms",
+        "dialog-stored-card",
+        "dialog-privacy"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "dialog.agree",
+      "proto": "#mAgree",
+      "build": "#mAgree",
+      "states": [
+        "dialog-waiver"
+      ],
+      "text": true,
+      "geometry": true
+    },
+    {
+      "id": "dialog.x",
+      "proto": "#mClose",
+      "build": "#mClose",
+      "states": [
+        "dialog-waiver",
+        "dialog-pass-terms",
+        "dialog-stored-card",
+        "dialog-privacy"
+      ],
+      "text": false,
+      "geometry": true
+    }
+  ]
+}

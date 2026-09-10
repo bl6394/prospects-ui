@@ -30,7 +30,19 @@ sprints:
     created: "2026-09-10T18:38:20+00:00"
     updated: "2026-09-10T18:45:00+00:00"
     execution:
-      executor: "Claude Fable 5.1 (detached claude -p, started 2026-09-10)"
+      executor: "Claude Fable 5.1 — Phase A single session, then parallel BFF and UI lanes (user decision 2026-09-10 19:05 UTC); harness lane deferred by the user"
+      phases_complete: [A, B, C]
+      deferred: [D, E1, E2]
+      commits:
+        online-join-ui: [eafada1, 29ebc96, fa1878c, 41d7444]
+        online-join-bff: [289220e, 34b5493, 7ecdf58, 9ad75d8, 531f4f4, fc77007]
+      pushed: "2026-09-10T20:09Z to prospect-wallet/sprint-0001 (PRs #524, #96 absorb)"
+      quality:
+        online-join-bff: "lint 0; build ok; 60 suites / 549 tests; coverage 97.39/85.11/95.74/98.08 (floors 84/67/67/84); demo 66/66; --hosted BLOCKED (B1)"
+        online-join-ui: "lint 0 errors; build ok; 103 suites / 644 of 645 (1 pre-existing tz baseline); coverage 93.09/84.56/87.5/93.09 (floors 80/80)"
+      smoke: "orchestrator headless-Chrome smoke 2026-09-10: 4 purchases COMPLETE (returning x2, first-time save off/on), P1-6 overflow clean 320-440px, no third-party fonts — docs/validation/short-term-pass-sprint-0002-smoke.md"
+      gates: "S0 S1 S3 S4 S6 S8 S9 met; S5 pending (B1 hosted run); S2 S7 not started (harness deferred)"
+      summary: docs/sprints/drafts/SPRINT-0002-EXECUTION-SUMMARY.md
     inputs:
       change_requests: docs/prd/Change_Requests_2026-09-10.md
       prd: docs/prd/Consolidated_PRD_v3.4.md

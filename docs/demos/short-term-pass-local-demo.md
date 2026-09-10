@@ -155,3 +155,23 @@ Verified 2026-09-10 with `curl` against the restarted dev BFF (`npm start`, Phas
 | `POST /api/short-term-pass/checkouts` through the UI dev server `:3001` | 201 (proxied to the BFF) |
 
 A visual pass at 1440/375 px in a real browser was **not** performed by the executor (no browser tooling in this session) and is left for the design gate.
+
+## Receiving the one-time code and the pass as real emails (fake email service, 2026-09-10)
+
+Codes are random in v2, so a human tester needs an inbox. The BFF can deliver every email to a local SMTP sink in addition to the in-memory outbox (`STP_EMAIL_TRANSPORT=smtp`; mock adapter mode only; refused in production; the platform email-publisher adapter is still L1).
+
+1. Start Mailpit (Docker). Host port 2525 is used because macOS already listens on 1025:
+   ```
+   docker run -d --name stp-mailpit -p 2525:1025 -p 8025:8025 axllent/mailpit
+   ```
+2. In `repos/online-join-bff/.env`:
+   ```
+   STP_EMAIL_TRANSPORT=smtp
+   STP_SMTP_URL=smtp://localhost:2525
+   STP_EMAIL_FROM="Day Pass <no-reply@daypass.local>"
+   ```
+   then restart the BFF (`npm start`).
+3. Open the inbox at **http://localhost:8025**. Every identify sends "Your {Club} one-time code" with the six digits; every completed purchase sends "Your 1-day pass at {Club} - {date}" with the pass id and receipt number. Any address works (nothing leaves the machine), e.g. `you@stp.test`.
+4. The outbox route (`GET /api/short-term-pass/testing/outbox?checkoutId=`) and the demo script keep working unchanged; phone-channel messages stay outbox-only.
+
+Verified 2026-09-10: the orchestrator smoke (`docs/validation/short-term-pass-sprint-0002-smoke.md`) ran with SMTP on — 13 emails in Mailpit (one code per identify, one pass per COMPLETE purchase), capability report shows `SmtpMailer` for `VerificationPort + DeliveryPort`.

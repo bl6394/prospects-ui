@@ -67,3 +67,7 @@ Both dev servers restarted on the new code (UI dev server :3001 proxied by the B
 5. **Open P2 items** listed in `SPRINT-0002-BLOCKERS-UI.md` (A6-05…A6-10, A3-05, A5-02/03/05).
 6. **Register rows without owners**: CF-01, CF-02, CF-03, consent ledger platform adapter, D24 waiver reuse, recognized marketing preference, email transport.
 7. The 60 MB QA evidence from the parallel session (`docs/validation/qa/**`, `docs/validation/screenshots/sprint-0001/mobile/**`) is not committed by the orchestrator.
+
+## 6. Addendum 2026-09-10 — fake email service (PR-03 SMTP lane, built on request)
+
+The user asked to receive the OTP as email to keep testing manually, so the SMTP lane that the merge had deferred was built by the orchestrator: BFF commit on `prospect-wallet/sprint-0001` (pushed) adds `adapters/smtp/mailer.ts` (`SmtpMailer` wrapping `MockOutbox`, nodemailer), `STP_EMAIL_TRANSPORT|STP_SMTP_URL|STP_EMAIL_FROM` in config/env/boot guard (mock mode only, refused in production), tests (`smtpMailer.test.ts`, config and adapter tests). Full BFF suite after the change: 61 suites / 558 tests, coverage 97.37 / 85.27 / 95.81 / 98.04. Mailpit runs in Docker (`stp-mailpit`, SMTP :2525, inbox http://localhost:8025). Smoke rerun with SMTP on: 4 purchases COMPLETE, 13 emails delivered. Register row "email transport" updated. The OTP service itself (issue, verify, limits) was already in place from Sprint 0001/0002; this adds human-readable delivery.

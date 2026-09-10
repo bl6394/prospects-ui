@@ -177,3 +177,21 @@ Codes are random in v2, so a human tester needs an inbox. The BFF can deliver ev
 Verified 2026-09-10: the orchestrator smoke (`docs/validation/short-term-pass-sprint-0002-smoke.md`) ran with SMTP on — 13 emails in Mailpit (one code per identify, one pass per COMPLETE purchase), capability report shows `SmtpMailer` for `VerificationPort + DeliveryPort`.
 
 **Email format (2026-09-10):** the code email follows the Director of Design template `docs/prd/email-1-verification-code.html` — subject "Your {club legal name} code: {code}", club name and location header, "Check your email!", the code in a monospace box with a copy hint, the real expiry (10 minutes; the design mock-up said 5), footer with the club street address, the "sent on behalf of {club} by ABC Fitness" transactional line and Pass Terms / Privacy Notice links from the catalog (`CatalogClub.address`, `links.passTerms`, `links.privacy`). Rendered comparison: `docs/validation/screenshots/sprint-0002/email-1-{design,delivered}.png`. The pass/receipt email has no design template yet and keeps a plain layout.
+
+## Real delivery through aws-email-engine (`STP_EMAIL_TRANSPORT=publisher`, 2026-09-10)
+
+The platform path is email-publisher-service → aws-email-engine. The BFF posts the rendered email to `POST {STP_EMAIL_PUBLISHER_URL}{STP_EMAIL_PUBLISHER_PATH}/email/send` as an `EmailEngineRequest` with **`route: "AMZ"`**; the publisher's router (`EmailRouterService.routeEmailToAMZorPgs`) queues it for aws-email-engine only when the route is exactly `AMZ` and the receiver is not on the publisher blacklist, otherwise it goes to pgs-email-engine. `acknowledgement: "Sent"` means **queued**, not delivered: aws-email-engine then validates the fields and, outside production, sends only to receiver domains on its whitelist (use an `@abcfitness.com` address for dev testing). The tracking id in the request is the correlation handle in the engine's logs.
+
+```
+STP_EMAIL_TRANSPORT=publisher
+STP_EMAIL_PUBLISHER_URL=https://email-publisher.dev-backend.k8s-lower-wlr.abcfitness.net   # MICO application-local.yml
+STP_EMAIL_PUBLISHER_PATH=/email-publisher-service
+STP_EMAIL_PUBLISHER_AUTH="Basic …"          # the static feign.authorization credential MICO uses (secret)
+STP_EMAIL_SENDER=accountinfo@myiclubonline.com
+STP_EMAIL_REPLY_TO=noreply@abcfitness.com
+STP_EMAIL_BILLING_CODE_SUFFIX=STP           # billing code = <clubNumber>-STP; PRODUCT/PAYMENTS to confirm
+```
+
+Works in mock adapter mode (the outbox still records codes for the testing routes) and in platform mode (replaces the `NOT_ENABLED` verification/delivery ports). A refused or failed post makes identify answer 502 `UPSTREAM_UNAVAILABLE` "We could not send your code" — the code is never shown as sent when it was not queued.
+
+**Status 2026-09-10:** implemented and test-pinned (`emailPublisher.test.ts`); **live send blocked** — the dev publisher ingress answers `HTTP 503 {"error_code":"N503"}` to every request (with or without the credential, including the harmless `/blacklist/check-email`), while sibling hosts on the same cluster answer normally, so the dev service is down or not exposed externally. One real attempt from the BFF to `bjorn.loftis@abcfitness.com` was logged as `email.publisher … status:"refused", httpStatus:503`. The local `.env` keeps the publisher settings but runs `STP_EMAIL_TRANSPORT=smtp` (Mailpit) until the dev publisher answers; flip the one line and restart the BFF to retry.

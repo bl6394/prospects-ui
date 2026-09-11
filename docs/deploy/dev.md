@@ -1,6 +1,6 @@
 # Day Pass checkout — dev environment deployment
 
-**Status (2026-09-11):** first dev deployment in progress from branch `prospect-wallet/sprint-0001` in both repos (prerelease builds, PRs #96 / #524 stay open). Feature is dark for real clubs.
+**Status (2026-09-11 17:45 UTC):** BFF `v1.2.0-daypass.1` and UI `v8.33.0-daypass.1` are both deployed to dev by their release-triggered pipelines (promotion runs cancelled at the staging gate; releases re-marked prerelease). The Day Pass routes still answer 404 in dev because the `STP_*` config is not merged: **waiting on helm-configs PR #3083 (needs one approval), then redeploy the BFF tag to dev.** PRs #96 / #524 stay open.
 
 ## How the two apps deploy
 
@@ -21,6 +21,15 @@ The PR CI's "Bump package version" job fails because the PR titles are not Conve
 
 - **BFF `STP_NON_PRODUCTION`** (commit `53e549e`): `isProduction` is `NODE_ENV !== 'development'`, so the dev cluster counted as production and the boot guard refused mock adapters, test hooks and the flag override. The new switch declares a cluster non-production for this feature only; it is ignored when `NODE_ENV=production`. Cookie/proxy behaviour unchanged.
 - **helm-configs PR:** https://github.com/abcfinancial2/helm-configs/pull/3083 adds to `online-join-bff/dev.yaml`: `STP_NON_PRODUCTION=true`, `STP_ADAPTER_MODE=mock`, `STP_CAPTURE_MODE=paypage`, `STP_EMAIL_TRANSPORT=mock`, `STP_TEST_HOOKS=true`, `STP_TEST_HOOKS_KEY=<dev key>`, `STP_LOCAL_FLAG_OVERRIDE=true` (temporary), `STP_ALLOWED_ORIGINS=https://onlinejoin.dev.abcfitness.net`, `STP_SESSION_SECRET`, `STP_CODE_SECRET` (random dev-only values). Must merge before the BFF deploy.
+
+## What "Publish release" actually does (learned 2026-09-11)
+
+`release.yml` publishes the artifact **and creates a GitHub release**, and both repos have `deployment.yml` on `release: [released]` that runs the shared `*-oe` promotion pipeline: **dev deploys automatically**, then the run waits for the `staging` environment approval (reviewers `SSO-Staging-Deployers`, `SSO-CloudOps`), then beta, then prod. Consequences:
+
+- A branch build reaches dev without the manual "Deploy … ENV" step. The BFF prerelease `v1.2.0-daypass.1` was deployed to dev by run 34628684227 at 17:37 UTC; I cancelled the run at the staging gate so it cannot promote.
+- The release is created as a normal "latest" release. I re-marked `v1.2.0-daypass.1` as a prerelease and restored `v1.1.8` as latest; do the same for the UI release.
+- **Every future publish from the branch must be cancelled at the staging gate** (or the approvers told to reject it). Never approve a `-daypass.*` build into staging.
+- The manual "Deploy … ENV" workflow is still needed to **re-deploy** after a helm-configs change (values are read at deploy time), e.g. after PR #3083 merges.
 
 ## Deploy steps (tags from the branch builds)
 

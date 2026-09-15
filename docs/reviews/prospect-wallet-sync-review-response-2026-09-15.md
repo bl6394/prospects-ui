@@ -5,6 +5,18 @@
 
 **Disposition key:** **Accept** = fix as asked · **Accept, adjusted** = fix, but not exactly as proposed · **Clarify** = the code is right for a reason the review could not see; document it · **Push back** = keep the behaviour, with the reason.
 
+## Implementation status (2026-09-15, same day)
+
+All accepted points are implemented and in review; the pushed-back items are unchanged as argued below.
+
+| PR | Repo | Content | Tests |
+|---|---|---|---|
+| [wallet-account-sync #406](https://github.com/abcfinancial/wallet-account-sync/pull/406) | `main`, squash | Points 5–19 in three commits (`45a5063` mechanical; `3f07fff` dedicated Kafka container factory, typed consumer, tagged `MicrometerService`, validated properties; `7e412bd` prospect-scoped consent publisher, guard removed, shared payment helpers) | full suite 1087 tests / 98 classes, 0 failures |
+| [universal-wallet #707](https://github.com/abcfinancial2/universal-wallet/pull/707) | `main` | Point 1: `universal-wallet-PROSPECT-enable-agreement-less-member-deduplication` (default off) gates the MEMBER id-based dedup key fallback | 978 tests, 0 failures |
+| [spring-cloud-config #4652](https://github.com/abcfinancial/spring-cloud-config/pull/4652) | `develop` | Follow-up: drops the retired `prospect-tier.consent-suppression` and `prospect-lane.nack-backoff` keys from the three unapplied `*-prospect.yml` tier files | YAML parse |
+
+Points 3 and 4 (documentation) are recorded in `prospects1/docs/prd/prospect-wallet-decisions.md` ("D-02 clarifications" and "Post-review implementation state"). Per-point implementation notes with the pinning tests: `prospect-wallet-sync-review-fixes-WAS.md` and `prospect-wallet-sync-review-fixes-UW.md` in this folder. Deviations worth knowing: the prospect consent publisher implements a small interface rather than subclassing the member publisher (avoids ambiguous injection); `prospect-payment-method-sync-count.errors` is counted once per terminal pass by the recoverer and the duration timer is one sample per delivery attempt; the strict UUID helper has one caller because point 8 removed the string parse from `MemberService.isProspect`.
+
 ## Summary
 
 | # | Point | Disposition | Effort |

@@ -1,0 +1,88 @@
+WalletEntryDeduplicationJobSchedulerService
+• New behavior (agreement-less MEMBER / prospect scheduling, skip unsupported owner types) is not behind a dedicated feature flag. Existing ENABLE_WALLET_ENTRY_DEDUPLICATION_JOB flags only enable/disable the job as a whole.
+
+GLOBAL
+• No WalletEntryOwner / WalletEntryUser Pair Resolver changes. Prospects should not resolve any owner/user pairs. Pair lookup is not needed for PROSPECT members.
+
+• Who on the MNO side will populate dt_memberType( MEMBER| PROSPECT) on walletEntryOwner / walletEntryUser ? Which services/flows write this metadata?
+
+• Do we need a data migration? Do we need DBA to backfill dt_memberType: MEMBER|PROSPECT for all existing MEMBER walletEntryOwners / walletEntryUsers? If missing metadata is treated as MEMBER vs unknown, that needs to be explicit before this goes live.
+
+WALLET ACCOUNT SYNC
+https://github.com/abcfinancial/wallet-account-sync/commit/1dc1cd64549c6b8655d12b699cadae58aea1045f
+
+
+
+ProspectBackfillDryRunService
+1. Why do we need this? You already parse a GUID; if anything is wrong, it will fail earlier.
+if( !id.toString().replace( "-", "" ).equalsIgnoreCase( memberId.replace( "-", "" ) ) )
+{
+    throw new IllegalArgumentException( "Member id must be a full UUID" );
+}2. Metrics — counter updates should be isolated in MetricsService.
+FeatureFlagHelper
+1. isProspectLaneEnabled — this wrapper is unnecessary. Call launchDarklyFeatures.getBooleanFeature(...) directly.
+MemberService
+1. isProspect — why parse a UUID from a string that was already obtained from a UUID?
+ProspectLookupRowMapper
+1. Use getBoolean instead of getBigDecimal.
+WalletEventService
+1. Metrics — counter updates should be isolated in MetricsService.
+2. Prospect logic — ........
+ProspectClassifier
+Should be MemberClassifier — prospect is a member type derived from agreement settings.
+1. Metrics — counter updates should be isolated in MetricsService.
+2. Code is unreadable — formatting does not follow ABC standards.
+3. Club mismatch / desync — I think we should fail in this case:
+if( !event.clubNumber().equals( lookup.get().clubNumber() ) )
+    log.debug( "Prospect classified at a second club within the ABC VPD." );4. Integer flag = lookup.get().isProspect(); — replace with boolean (see ProspectLookupRowMapper).
+ProspectWalletSyncEventPublisher
+1. Extract the topic into a constant, same as elsewhere. Drop the : default so the app cannot start half-configured:
+@Value("${abcfinancial.kafka.topics.prospect-wallet-sync-topic.name:}")2. Replace this with JSR validation on the parameters:
+if( topic.isBlank() || timeoutSeconds <= 0 ) throw new IllegalStateException();RoutableComposite
+Unreadable.
+1. Always false — the field is @NotNull: event.getType() == null
+2. This looks awful:
+int children = (event.getPaymentMethodChangedEvent() == null ? 0 : 1)
+    + (event.getAssignmentChangedEvent() == null ? 0 : 1)
+    + (event.getMemberResyncEvent() == null ? 0 : 1);3. Checking the specific ChangedEvent field is enough; type and data are @NotNull:
+if( child == null || child.getType() == null || child.getData() == null ) throw invalid();4. from
+
+always false — memberId == null
+always false — club == null
+prefer StringSupport.isValidClubNumber instead of !club.matches("[0-9]{5}")
+metadata — DT_MEMBER_TYPE will never be there
+ProspectPaymentMethodChangedEventProcessor
+Unreadable. This looks like a redundant component: it duplicates PaymentMethodChangedEventProcessor in a twisted way.
+Why throw if( event.getType() == PAYMENT_METHOD_ACCOUNT_CHANGED ) throw new ProspectRetryableException(); when accountInfo is not found?
+Are matches / matchesZip / matchesCardEncodingState actually needed?
+ProspectConsentPolicyConfiguration
+This looks like it breaks the member document generation flow. The configuration registers a bean that does nothing.
+ProspectTierInvariantGuard
+Why? The app already has too many flags that control prospect payment-method logic. Collapse this to a single flag (LD or feature flag).
+ProspectWalletSyncEventHandler#handleRecord
+Unreadable. Retry should happen at the container level, not as a loop inside the handler. Enable it in config and wire the retry mechanism if it is not already configured.
+ProspectWalletSyncKafkaListener
+Remove everything extra. Retry should be at the container level (enable in config and wire retry if it is not configured).
+
+remove default configuration
+remove the custom group
+why a String ser/de?
+ConsumerRecord<String, String> record — why not consume an already deserialized object?
+Global
+Very dirty, hard-to-follow implementation (especially the Kafka classes).
+Why is there a PaymentMethodEventProcessor for prospects, but no AssignmentEventProcessor? (edited) 
+[4:00 PM]Summary
+Overall: messy, hard to follow — especially Kafka. Too much duplicated / parallel prospect logic.
+
+Main points:
+• Metrics counters belong in MetricsService (BackfillDryRun, WalletEventService, ProspectClassifier)
+• ProspectClassifier -> MemberClassifier (prospect is a member type from agreement settings). Club mismatch should fail, not debug-log. isProspect should be boolean, not Integer/BigDecimal
+• Drop FeatureFlagHelper#isProspectLaneEnabled — call LD getBooleanFeature directly
+• Don’t re-parse UUIDs / re-validate @NotNull fields / GUID full UUID checks that already fail earlier
+• Publisher: topic as a required constant (no empty default). Use JSR validation instead of IllegalStateException
+• ProspectPaymentMethodChangedEventProcessor looks redundant vs PaymentMethodChangedEventProcessor. Why a custom PaymentMethod processor for prospects and no Assignment processor?
+• ConsentPolicyConfiguration registers a no-op bean and likely breaks member document generation
+• Too many prospect PM flags — collapse to one LD/feature flag (incl. ProspectTierInvariantGuard)
+• Kafka: retry at the container, not a loop in the handler. Drop default config, custom group, String ser/de — consume a typed object
+
+

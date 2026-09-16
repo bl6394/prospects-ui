@@ -54,3 +54,24 @@ sprints:
       online-join-bff: https://github.com/abcfinancial/online-join-bff/pull/96
       online-join-ui: https://github.com/abcfinancial/online-join-ui/pull/524
     carries: [SPRINT-0001 G2 → S2, SPRINT-0001 G4 → S5]
+  - id: SPRINT-0003
+    title: Design v4 — selectable 1/3/5-day passes, the QR and receipt delivered by email, and a login-free "View your pass" page
+    status: planned
+    created: "2026-09-16T00:05:00+00:00"
+    updated: "2026-09-16T00:05:00+00:00"
+    inputs:
+      change_requests: docs/prd/Change_Requests_2026-09-15.md
+      prd: docs/prd/Consolidated_PRD_v3.4.md
+      design_source_of_truth: docs/prd/day-passv4.html
+      supersedes_design: docs/prd/day-pass-v1.2.html
+    scope: [CR-10, CR-11, CR-12, CR-13, CR-14, CR-15, CR-16, CR-17, PR-05, PR-06]
+    interview:
+      cr13: "in full — link on done page, email and receipt; login-free page with static QR; owner-only rotate-and-resend"
+      link_grace: "end of last valid club-local day + 24 h, view only"
+      branches: "new prospect-wallet/sprint-0003 off the sprint-0001 heads (UI 151846d, BFF 53e549e); PRs stacked on prospect-wallet/sprint-0001"
+      harness: "deferred until the user says; PR-05 re-baselines TOOLS/parity inputs on v4 in place, no run"
+    branches:
+      online-join-ui: prospect-wallet/sprint-0003
+      online-join-bff: prospect-wallet/sprint-0003
+    carries: [SPRINT-0002 S2 → T7 (inputs only), SPRINT-0002 S5 (B1, unchanged), SPRINT-0002 S7 (deferred)]
+    gates: T0–T8

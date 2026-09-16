@@ -1,15 +1,30 @@
 {
-  "$comment": "Sprint 0002 A4 parity inventory: prototype→build selector pairs per state. The build mirrors the v1.2 ids and classes so most pairs are identical; `build` differs only where the plan approves a structural delta. Text is whitespace-normalised; styles default to `styleProps`; geometry (height/width) rounds to 0.5 px.",
-  "version": 1,
+  "$comment": "Sprint 0003 A5 parity inventory v2 (PR-05): prototype→build selector pairs per state, re-baselined on Design HTML v4 (docs/prd/day-passv4.html). The build mirrors the v4 ids and classes so most pairs are identical; `build` differs only where the plan approves a structural delta (approved-deltas.json v2). Entries marked `stub:true` are v4 selector pairs added at A5 for the orchestrator's D1 completion (coverage per state × width is D1's done-when). Text is whitespace-normalised; styles default to `styleProps`; geometry (height/width) rounds to 0.5 px. The loop is NOT run this sprint (user decision).",
+  "version": 2,
   "prototype": {
-    "file": "docs/prd/day-pass-v1.2.html",
-    "sha256": "3b24d98e6afb154d0a07dcbb4eaa7cb40b3c4097d0588170f62bc70b22b5d7c2"
+    "file": "docs/prd/day-passv4.html",
+    "sha256": "c0a5fd8d3f511705145687037a3cc7a02a3163ad75d902a4282eefc391316616",
+    "supersedes": {
+      "file": "docs/prd/day-pass-v1.2.html",
+      "sha256": "3b24d98e6afb154d0a07dcbb4eaa7cb40b3c4097d0588170f62bc70b22b5d7c2"
+    }
   },
   "build": {
     "entry": "/signup/day-pass?club=90033",
     "club": "90033",
     "recognizedEmail": "m@m.com",
-    "newVisitorEmail": "parity-new-visitor@stp.test"
+    "newVisitorEmail": "parity-new-visitor@stp.test",
+    "recognizedFirstName": "Kelly",
+    "offers": {
+      "default": "day-pass-gym-floor",
+      "3day": "day-pass-gym-floor-3",
+      "5day": "day-pass-gym-floor-5"
+    },
+    "prototypeOffers": {
+      "default": "d1",
+      "3day": "d3",
+      "5day": "d5"
+    }
   },
   "widths": [
     {
@@ -25,6 +40,8 @@
   ],
   "states": [
     "identify",
+    "identify-offer-3day",
+    "identify-offer-5day",
     "code-entry",
     "recognized",
     "recognized-new-card",
@@ -65,17 +82,6 @@
       ],
       "inset": 1,
       "maxAreaRatio": 0.35
-    },
-    {
-      "id": "qr-modules",
-      "proto": "#main .pass .qr",
-      "build": "#main .pass .qr",
-      "states": [
-        "done-saved",
-        "done-not-saved"
-      ],
-      "inset": 0,
-      "maxAreaRatio": 0.05
     },
     {
       "id": "toast",
@@ -178,6 +184,8 @@
       "build": "#main .dt-widget-header h1",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry",
         "recognized",
         "recognized-new-card",
@@ -194,6 +202,8 @@
       "build": "#main .dt-widget-header p",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry",
         "recognized",
         "recognized-new-card",
@@ -210,10 +220,13 @@
       "build": "#main .offer",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": false,
-      "geometry": true
+      "geometry": true,
+      "note": "v4: three .offer labels inside .offers for Core (one for Riverside, AD-11); compared per card via identify.offer.* pairs"
     },
     {
       "id": "identify.offer.chosen",
@@ -221,6 +234,8 @@
       "build": "#main .offer .chosen",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": true,
@@ -232,6 +247,8 @@
       "build": "#main .offer .price",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": true,
@@ -243,6 +260,8 @@
       "build": "#main .offer .name",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": true,
@@ -254,10 +273,190 @@
       "build": "#main .offer ul",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": true,
       "geometry": true
+    },
+    {
+      "id": "identify.offers",
+      "proto": "#main .offers",
+      "build": "#main .offers",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true,
+      "stub": true,
+      "note": "v4 line 163/465: role=radiogroup aria-label=\"Choose a pass\"; grid repeat(3,minmax(0,1fr)) (CR-15); Riverside .offers.single is AD-11"
+    },
+    {
+      "id": "identify.offer.days",
+      "proto": "#main .offer .days",
+      "build": "#main .offer .days",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true,
+      "stub": true,
+      "note": "v4 line 176/461: \"1-day pass\" / \"3-day pass\" / \"5-day pass\" (CR-15)"
+    },
+    {
+      "id": "identify.offer.radio",
+      "proto": "#main .offer .radio",
+      "build": "#main .offer .radio",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true,
+      "stub": true,
+      "note": "v4 line 167-170: custom radio indicator; checked state follows the selected card"
+    },
+    {
+      "id": "identify.offer.icon",
+      "proto": "#main .offer svg",
+      "build": "#main .offer svg",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true,
+      "stub": true,
+      "note": "v4 line 178: 32 px icon (CR-15)"
+    },
+    {
+      "id": "identify.offer.1day",
+      "proto": "#main #offer-d1",
+      "build": "#main #offer-day-pass-gym-floor",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": false,
+      "stub": true,
+      "note": "v4 line 453: input#offer-{key} name=pass; build id = offer-{offerId}; checked on identify"
+    },
+    {
+      "id": "identify.offer.3day",
+      "proto": "#main #offer-d3",
+      "build": "#main #offer-day-pass-gym-floor-3",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": false,
+      "stub": true,
+      "note": "checked on identify-offer-3day"
+    },
+    {
+      "id": "identify.offer.5day",
+      "proto": "#main #offer-d5",
+      "build": "#main #offer-day-pass-gym-floor-5",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": false,
+      "stub": true,
+      "note": "checked on identify-offer-5day"
+    },
+    {
+      "id": "identify.offer.1day.card",
+      "proto": "#main label[for=offer-d1]",
+      "build": "#main label[for=offer-day-pass-gym-floor]",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true,
+      "stub": true,
+      "note": "v4 line 452: the .offer label; .selected / :has(input:checked) border"
+    },
+    {
+      "id": "identify.offer.3day.card",
+      "proto": "#main label[for=offer-d3]",
+      "build": "#main label[for=offer-day-pass-gym-floor-3]",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true,
+      "stub": true
+    },
+    {
+      "id": "identify.offer.5day.card",
+      "proto": "#main label[for=offer-d5]",
+      "build": "#main label[for=offer-day-pass-gym-floor-5]",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true,
+      "stub": true
+    },
+    {
+      "id": "identify.offer.chosen.checked",
+      "proto": "#main .offer:has(input:checked) .chosen",
+      "build": "#main .offer:has(input:checked) .chosen",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": true,
+      "geometry": true,
+      "stub": true,
+      "note": "v4 line 171-172: \"Selected\" chip visible on the checked card only"
+    },
+    {
+      "id": "identify.lead",
+      "proto": "#main .identify-row > .lead",
+      "build": "#main .identify-row > .lead",
+      "states": [
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
+        "code-entry"
+      ],
+      "text": false,
+      "geometry": true,
+      "stub": true,
+      "note": "v4 line 162: flex 1 1 300px, max-width 545px (CR-15)"
     },
     {
       "id": "identify.email.label",
@@ -265,6 +464,8 @@
       "build": "#main label[for=ident]",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": true,
@@ -276,6 +477,8 @@
       "build": "#main #ident",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": false,
@@ -286,7 +489,9 @@
       "proto": "#main #continue",
       "build": "#main #continue",
       "states": [
-        "identify"
+        "identify",
+        "identify-offer-3day",
+        "identify-offer-5day"
       ],
       "text": true,
       "geometry": true
@@ -661,17 +866,6 @@
       "geometry": true
     },
     {
-      "id": "done.qr",
-      "proto": "#main .pass .qr",
-      "build": "#main .pass .qr",
-      "states": [
-        "done-saved",
-        "done-not-saved"
-      ],
-      "text": false,
-      "geometry": true
-    },
-    {
       "id": "done.big",
       "proto": "#main .pass .big",
       "build": "#main .pass .big",
@@ -680,7 +874,8 @@
         "done-not-saved"
       ],
       "text": true,
-      "geometry": true
+      "geometry": true,
+      "note": "v4 line 589: \"{label} · {validity}\" (CR-11/CR-12)"
     },
     {
       "id": "done.sm",
@@ -691,7 +886,8 @@
         "done-not-saved"
       ],
       "text": true,
-      "geometry": true
+      "geometry": true,
+      "note": "v4 line 590: \"We emailed your pass and door QR code to {masked}. Show it at the door, or just say your name at the front desk.\" (CR-12); build variants for pending/failed are AD-13"
     },
     {
       "id": "done.saved.alert",
@@ -761,6 +957,8 @@
       "build": "#sideTitle",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry",
         "recognized",
         "recognized-new-card",
@@ -777,6 +975,8 @@
       "build": "#sideSub",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry",
         "recognized",
         "recognized-new-card",
@@ -793,6 +993,8 @@
       "build": "#summary .skeleton:nth-of-type(1)",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": false,
@@ -804,6 +1006,8 @@
       "build": "#summary .skeleton:nth-of-type(2)",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry"
       ],
       "text": false,
@@ -811,15 +1015,16 @@
     },
     {
       "id": "side.day.label",
-      "proto": "#summary label[for=day]",
-      "build": "#summary label[for=day]",
+      "proto": "#summary .dayfield .dt-label",
+      "build": "#summary .dayfield .dt-label",
       "states": [
         "recognized",
         "recognized-new-card",
         "new-visitor"
       ],
       "text": true,
-      "geometry": true
+      "geometry": true,
+      "note": "v4 line 624: \"Day pass applies on\" (1-day) / \"Pass starts on\" (multi-day) — CR-11"
     },
     {
       "id": "side.day.input",
@@ -843,7 +1048,8 @@
         "new-visitor"
       ],
       "text": true,
-      "geometry": true
+      "geometry": true,
+      "note": "v4 line 626: validityLabel() range \"Today – Fri, Sep 11\" for multi-day (CR-11); AD-08 covers the blank-date string"
     },
     {
       "id": "side.row.item",
@@ -898,7 +1104,7 @@
       ],
       "text": true,
       "geometry": true,
-      "note": "Paying with (recognized) / Valid (done)"
+      "note": "Paying with (recognized) / Valid (done, v4 line 629: validity range)"
     },
     {
       "id": "side.row.paidwith",
@@ -1015,6 +1221,8 @@
       "build": "#fine",
       "states": [
         "identify",
+        "identify-offer-3day",
+        "identify-offer-5day",
         "code-entry",
         "recognized",
         "recognized-new-card",
@@ -1112,6 +1320,38 @@
       ],
       "text": false,
       "geometry": true
+    },
+    {
+      "id": "done.view",
+      "proto": "#main .pass .view-pass",
+      "build": "#main .pass .view-pass",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true,
+      "stub": true,
+      "note": "AD-12: \"View your pass\" link under the pass sentence (CR-13) — no v4 element; build-only"
+    },
+    {
+      "id": "side.row.view",
+      "proto": "#summary .srow.view-pass",
+      "build": "#summary .srow.view-pass",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "text": true,
+      "geometry": true,
+      "stub": true,
+      "note": "AD-12: Receipt row \"View your pass\" (CR-13) — build-only"
     }
-  ]
+  ],
+  "stateNotes": {
+    "identify-offer-3day": "identify screen after selecting the 3-day card (prototype: click #offer-d3; build: click #offer-day-pass-gym-floor-3); toast masked",
+    "identify-offer-5day": "identify screen after selecting the 5-day card (prototype: #offer-d5; build: #offer-day-pass-gym-floor-5); toast masked",
+    "done-saved": "v4: no .qr block on the done page (CR-12); the pass block reads \"{label} · {validity}\" + the emailed-QR sentence",
+    "done-not-saved": "v4: no .qr block on the done page (CR-12)"
+  }
 }

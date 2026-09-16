@@ -1,6 +1,6 @@
 {
-  "$comment": "Approved deltas between Design HTML v1.2 and the build (Sprint 0002 A4). Each entry cites the PRD/CR/plan line that approves it. Only a human may add entries; the parity runner exempts exactly what is listed and reports everything else.",
-  "version": 1,
+  "$comment": "Approved deltas between Design HTML v4 (docs/prd/day-passv4.html) and the build (Sprint 0003 A5, v2; supersedes the v1.2 list of Sprint 0002 A4). Each entry cites the v4 line, PRD, CR or plan line that approves it. Only a human may add entries; the parity runner exempts exactly what is listed and reports everything else. AD-11…AD-13 are Sprint 0003 placeholders for the orchestrator's D1 (the plan numbered them AD-10…AD-12; AD-10 was already taken by the v1.2 tab-row width delta, kept here). The loop is NOT run this sprint.",
+  "version": 2,
   "deltas": [
     {
       "id": "AD-01",
@@ -11,7 +11,7 @@
       "build": "#main .lead .dt-help",
       "text": "We'll email you a one-time code and your receipt",
       "reason": "Transactional email notice under the email field; the prototype hides #identHelp until an error.",
-      "cite": "PRD v3.4 §4.5 Tier 0 (D35); SPRINT-0002 U1 'approved delta'"
+      "cite": "v4 line 492 (`#identHelp` hidden until an error); PRD v3.4 §4.5 Tier 0 (D35); SPRINT-0003 U1 (unchanged from SPRINT-0002 U1)"
     },
     {
       "id": "AD-02",
@@ -20,8 +20,8 @@
         "new-visitor"
       ],
       "build": "#main #second ~ .dt-help.notice, #main .marketing",
-      "reason": "Transactional-SMS notice under the mobile field and the unchecked marketing opt-in row; absent from v1.2.",
-      "cite": "CR-09; PRD D32b, D37, §4.5; SPRINT-0002 U6"
+      "reason": "Transactional-SMS notice under the mobile field and the unchecked marketing opt-in row; absent from v4 (which has no helper under the mobile field at all after CR-14).",
+      "cite": "v4 line 570 (mobile field without any helper — CR-14 removed 'We'll text your pass here on the day.'); CR-09; PRD D32b, D37, §4.5; SPRINT-0003 U22"
     },
     {
       "id": "AD-03",
@@ -32,7 +32,7 @@
       ],
       "build": "#main #recognizedMobile",
       "reason": "Required Mobile field under Your info when the recognised person has no mobile on file (not rendered for the m@m.com twin, so no pixel effect in the loop).",
-      "cite": "PRD D37; SPRINT-0002 U5 'approved delta'"
+      "cite": "v4 lines 540-545 (Your info rows: Name / Email / Mobile from the record only); PRD D37; SPRINT-0002 U5 'approved delta'; SPRINT-0003 Q-2 carried"
     },
     {
       "id": "AD-04",
@@ -44,7 +44,7 @@
       "proto": "#main .payfields",
       "build": "#main .card-slot",
       "reason": "The Pay Page hosted frame (or TestCardPanel with hooks) replaces the mocked card fields; internals masked, wrapper bounds and neighbouring spacing compared.",
-      "cite": "CR-03, CR-04; PRD D44; SPRINT-0002 §Parity loop masks"
+      "cite": "v4 lines 500-519 (`.payfields` card form) / 214-219 (styles); CR-03, CR-04; PRD D44; SPRINT-0002 §Parity loop masks"
     },
     {
       "id": "AD-05",
@@ -52,7 +52,7 @@
       "states": "*",
       "element": "shell.switcher",
       "reason": "Static location label: same text and box, rendered without aria-haspopup / listbox semantics.",
-      "cite": "SPRINT-0002 interview decision 'static location label'; intent reconciliation row Header/nav"
+      "cite": "v4 line 297 (`.dt-switcher` with aria-haspopup=listbox); SPRINT-0002 interview decision 'static location label'"
     },
     {
       "id": "AD-06",
@@ -60,7 +60,7 @@
       "states": "*",
       "build": ".dt-alert.danger, .card-slot .retry",
       "reason": "Retry / error affordances (session failure, 503 lookup retry, embed load failure) exist only in error states outside the eleven parity states.",
-      "cite": "SPRINT-0002 U9, U15"
+      "cite": "v4 line 576 (`.dt-alert.danger#formErr` hidden unless an error); SPRINT-0002 U9, U15; SPRINT-0003 U12 delivery variants are AD-13"
     },
     {
       "id": "AD-07",
@@ -70,8 +70,8 @@
         "done-not-saved"
       ],
       "build": "#main .dt-alert.warning",
-      "reason": "Sprint 0001 wallet-retry alert for a failed save; not reachable in the parity runs (saves succeed).",
-      "cite": "SPRINT-0002 U17 'approved delta'"
+      "reason": "Sprint 0001 wallet-retry alert for a failed save and the Sprint 0003 'Resend pass email' action; not reachable in the parity runs (saves and sends succeed).",
+      "cite": "v4 lines 594-596 (only the success alert or the not-saved help on done); SPRINT-0002 U17 'approved delta'; SPRINT-0003 U11 'saved-card / not-saved / retry alerts as Sprint 0002'"
     },
     {
       "id": "AD-08",
@@ -83,7 +83,7 @@
       ],
       "element": "side.day.help",
       "reason": "The build defaults the date to club-local today, so the prototype's blank-date help string 'Choose the day you'll visit…' is never rendered; the prototype driver sets #day to the same day before capture.",
-      "cite": "CR §D 'Date selector — confirmed correct'; SPRINT-0002 interview 'date defaults to club-local today'"
+      "cite": "v4 line 626 (blank-date string \"Choose the day you'll visit…\" vs validityLabel()); CR §D 'Date selector — confirmed correct'; SPRINT-0003 U6/U7 (date defaults to club-local today)"
     },
     {
       "id": "AD-09",
@@ -93,7 +93,7 @@
       ],
       "element": "dialog.body",
       "reason": "Refunds paragraph follows PRD D15/D22 ('Refunds: none online. Any refund is at the club's discretion, in club.') instead of v1.2's 'Full refund any time before the first valid day'.",
-      "cite": "PRD v3.4 D15, D22; SPRINT-0002 §Consent model"
+      "cite": "v4 line 374 ('Full refund any time before the first valid day of your pass.'); PRD v3.4 D15, D22; SPRINT-0003 §2 'refund paragraph unchanged (PRD D15/D22, AD-09)'; CR-17"
     },
     {
       "id": "AD-10",
@@ -104,7 +104,47 @@
         "width"
       ],
       "reason": "At 375 px the prototype tab row overflows its 375 px container (padding 16 px + four tabs); the build clips the same row with overflow-x auto. Only width is exempt; text, font and colours are compared.",
-      "cite": "SPRINT-0002 C8a 'v1.2 tab-row media rule'; BROWSER-QA P1-6 (no horizontal overflow)"
+      "cite": "v4 lines 72 and 75 (`.dt-tabs` padding 0 48px; ≤640px padding s4) — no overflow rule in v4 either; SPRINT-0002 C8a; BROWSER-QA P1-6; SPRINT-0003 regression 'no horizontal overflow at 320–440 px with three cards'"
+    },
+    {
+      "id": "AD-11",
+      "kind": "style",
+      "states": [
+        "identify",
+        "code-entry"
+      ],
+      "build": "#main .offers.single",
+      "placeholder": true,
+      "reason": "Single-offer clubs (Riverside 90030) render one centred card inside `.offers.single`; v4 has no single-offer design (three cards only). Only the grid template / justification of `.offers` is exempt; the card itself is compared. Parity club 90033 renders three cards, so this delta has no pixel effect in the loop.",
+      "cite": "SPRINT-0003 U3 'approved delta AD-10 — v4 has no single-offer design' (renumbered AD-11 here); CR-10 'Riverside stays single-offer'; Change_Requests_2026-09-15 §A CR-10 notes"
+    },
+    {
+      "id": "AD-12",
+      "kind": "extra-element",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "build": "#main .pass .view-pass, #summary .srow.view-pass, #main .resend-pass",
+      "placeholder": true,
+      "reason": "'View your pass' link under the pass sentence and as a Receipt row, plus the 'Resend pass email' secondary action; v4's done page (lines 582-600) has neither (CR-13 comes from D41 / Design v2 alignment rows 8-9, not from v4).",
+      "cite": "SPRINT-0003 U11, U12, §6 'Done page and receipt'; CR-13; PRD v3.4 D41, FR-P15, UC J1 step 6; Change_Requests_2026-09-15 §A CR-13"
+    },
+    {
+      "id": "AD-13",
+      "kind": "text",
+      "states": [
+        "done-saved",
+        "done-not-saved"
+      ],
+      "element": "done.sm",
+      "placeholder": true,
+      "reason": "Truthful delivery variants of the v4 sentence (line 590): `pending` → 'We're sending your pass and door QR code to {masked}. You can view your pass here.'; `failed` → 'We couldn't email your pass and door QR code to {masked}. You can view your pass here, or say your name at the front desk.'; `not-attempted` → desk sentence only. The `sent` text is v4 verbatim and is compared, not exempt.",
+      "cite": "SPRINT-0003 U12 '(approved deltas)', §6 sentence table; CR-12; Change_Requests_2026-09-15 §D"
     }
-  ]
+  ],
+  "prototype": {
+    "file": "docs/prd/day-passv4.html",
+    "sha256": "c0a5fd8d3f511705145687037a3cc7a02a3163ad75d902a4282eefc391316616"
+  }
 }

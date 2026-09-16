@@ -78,9 +78,12 @@ sprints:
     execution:
       executor: "Claude Fable 5.1 — Phase A single detached session, then parallel BFF and UI lanes; D/E by the orchestrator; harness lane deferred by the user"
       started: "2026-09-16T05:07:14+00:00"
-      phases_complete: [A]
+      phases_complete: [A, B, C, D1]
       commits:
-        online-join-ui: [d97afbe, b6ae307]
-        online-join-bff: [5915c96, 0121512, a3cdbfc]
-      pushed: "prospect-wallet/sprint-0003 in both repos after Phase A"
+        online-join-ui: [d97afbe, b6ae307, 44026f5, 72858ab, 37af94e, ad1ef91, d1ee1d7, 1f23204, 6243e8b]
+        online-join-bff: [5915c96, 0121512, a3cdbfc, 77a5695, 0fc4365, a3b3332, 295edde, 0774fb8, d829dde, 562b002, a0cbb58, 6dfa0cd]
+      pushed: "prospect-wallet/sprint-0003 in both repos — UI head 6243e8b, BFF head 6dfa0cd"
+      quality:
+        online-join-bff: "tsc clean; lint 0; 70 suites / 698 passed (2 pre-existing skips); coverage 97.22/86.76/96.44/98.12 (floors 84/67/67/84); demo 88/88 incl. Demo 3"
+        online-join-ui: "tsc 8 pre-existing errors (unchanged); lint 0 errors / 760 warnings; 109 suites / 734 tests, 733 passed + the pre-existing transformers.test.ts tz baseline; coverage 92.90/85.65/88.46/92.90 (floors 80/80); build ok"
       blockers: "PA-1 history-fallback dot rule 404s /signup/pass/pv1.* (fix owned by B5); PA-2 dev ingress prefix for STP_PUBLIC_BASE_URL (PLATFORM)"

@@ -195,3 +195,23 @@ STP_EMAIL_BILLING_CODE_SUFFIX=STP           # billing code = <clubNumber>-STP; P
 Works in mock adapter mode (the outbox still records codes for the testing routes) and in platform mode (replaces the `NOT_ENABLED` verification/delivery ports). A refused or failed post makes identify answer 502 `UPSTREAM_UNAVAILABLE` "We could not send your code" — the code is never shown as sent when it was not queued.
 
 **Status 2026-09-10:** implemented and test-pinned (`emailPublisher.test.ts`); **live send blocked** — the dev publisher ingress answers `HTTP 503 {"error_code":"N503"}` to every request (with or without the credential, including the harmless `/blacklist/check-email`), while sibling hosts on the same cluster answer normally, so the dev service is down or not exposed externally. One real attempt from the BFF to `bjorn.loftis@abcfitness.com` was logged as `email.publisher … status:"refused", httpStatus:503`. The local `.env` keeps the publisher settings but runs `STP_EMAIL_TRANSPORT=smtp` (Mailpit) until the dev publisher answers; flip the one line and restart the BFF to retry.
+
+## Sprint 0003 (Design v4): choosing a pass, the pass email with the QR, and "View your pass" (2026-09-16)
+
+Branch `prospect-wallet/sprint-0003` in both repos. Three new `.env` keys are required whenever a real email transport (`smtp` or `publisher`) is on — the boot guard refuses to start without them:
+
+```
+STP_PUBLIC_BASE_URL=http://localhost:3000        # origin only; the BFF appends /signup/pass/<token> and /api/short-term-pass/passes/<token>/qr.png
+STP_PASS_LINK_SECRET=<random, ≥ 32 characters>   # dedicated; must differ from STP_SESSION_SECRET / STP_CODE_SECRET; never commit or print it
+STP_PASS_LINK_GRACE_HOURS=24                      # link stays viewable this long after the last valid club-local day (view only; the QR is hidden once expired)
+```
+
+1. Open `http://localhost:3000/signup/day-pass?club=90033` (Core South — the v4 club). Three cards: Gym Floor **1-day $25**, **3-day $60**, **5-day $90** (the multi-day prices are provisional fixture data, CF-04). Pick one; the toast reads "{label} · {price}". Riverside (`?club=90030`) keeps its single pre-selected card.
+2. Verify `m@m.com` → "Welcome back, **Kelly**" (the Core twin is Kelly Reyes now). For a multi-day pass the date field reads **"Pass starts on"** and the help shows the range ("Today – Fri, Sep 18"); the Pass Terms dialog says "3-day pass to Core Health and Fitness Club, valid …".
+3. Pay. The done page has **no QR**: "3-day pass · Today – Fri, Sep 18" and "We emailed your pass and door QR code to m•••@m.com. Show it at the door, or just say your name at the front desk." with **View your pass** (under the block and in the Receipt) and **Resend pass email**.
+4. Mailpit (`http://localhost:8025`): "Your 3-day pass at Core Health and Fitness Club · {validity}" — receipt, the **QR as an inline image** (`cid:pass-qr`; Mailpit lists it under *Inline*), and the "View your pass" button and text link. The payload is the mock `STP2|passId|club|visitDate|validUntil|sig` — a demo credential, not a door credential.
+5. Click **View your pass** (or paste the link into a private window): `http://localhost:3000/signup/pass/pv1.…` renders the pass with the QR, "{label} · {validity}", first name, an *Upcoming / Valid today / Expired* pill and the receipt — no cookie, no login, no `?club=`. The API behind it is `GET /api/short-term-pass/passes/<token>` (+ `…/qr.png`); any malformed, tampered, revoked or expired link answers one identical `404 {"code":"NOT_FOUND","message":"This link isn't valid."}`.
+6. **Resend pass email** rotates the link: a second email arrives with a new URL and the old one answers 404 (only after the transport accepted the send). Limits: 3 resends per purchase per hour; 60 public reads per IP per 15 minutes. Hooks: `POST /api/short-term-pass/testing/passes/revoke?checkoutId=&purchaseId=` (loopback + `X-STP-TEST-KEY`) revokes the current link; `POST /testing/reset` also clears these limiters.
+7. `npm run demo:short-term-pass` now runs **Demo 3 · Core South multi-day** (Runs 9–11: 3-day purchase, public link, tampered/revoked 404s, resend) — 88 / 88 checks on 2026-09-16.
+
+The credential and purchase stores are in-memory by declaration: restarting the BFF invalidates every link. Live delivery through the publisher is still blocked by the dev ingress 503; the hosted `qr.png` URL has only been exercised against the local BFF.

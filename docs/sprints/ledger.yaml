@@ -56,9 +56,9 @@ sprints:
     carries: [SPRINT-0001 G2 → S2, SPRINT-0001 G4 → S5]
   - id: SPRINT-0003
     title: Design v4 — selectable 1/3/5-day passes, the QR and receipt delivered by email, and a login-free "View your pass" page
-    status: in-progress
+    status: done
     created: "2026-09-16T00:05:00+00:00"
-    updated: "2026-09-16T05:07:14+00:00"
+    updated: "2026-09-16T07:45:46+00:00"
     inputs:
       change_requests: docs/prd/Change_Requests_2026-09-15.md
       prd: docs/prd/Consolidated_PRD_v3.4.md
@@ -78,11 +78,18 @@ sprints:
     execution:
       executor: "Claude Fable 5.1 — Phase A single detached session, then parallel BFF and UI lanes; D/E by the orchestrator; harness lane deferred by the user"
       started: "2026-09-16T05:07:14+00:00"
-      phases_complete: [A, B, C, D1]
+      phases_complete: [A, B, C, D, E]
       commits:
         online-join-ui: [d97afbe, b6ae307, 44026f5, 72858ab, 37af94e, ad1ef91, d1ee1d7, 1f23204, 6243e8b]
         online-join-bff: [5915c96, 0121512, a3cdbfc, 77a5695, 0fc4365, a3b3332, 295edde, 0774fb8, d829dde, 562b002, a0cbb58, 6dfa0cd]
       pushed: "prospect-wallet/sprint-0003 in both repos — UI head 6243e8b, BFF head 6dfa0cd"
+      pull_requests:
+        online-join-ui: https://github.com/abcfinancial/online-join-ui/pull/525
+        online-join-bff: https://github.com/abcfinancial/online-join-bff/pull/99
+      smoke: "orchestrator headless-Chrome smoke 2026-09-16: 240/240 checks — Core 1/3/5-day at 1440/375, Riverside regression, overflow 320-440px, stale-tab 409 re-sync, Mailpit CID QR decoded byte-for-byte x3, pass page in fresh contexts, tamper/resend/revoke — docs/validation/short-term-pass-sprint-0003-smoke.md"
+      gates: "T0-T8 evidence recorded; T2 DESIGN review of PROPOSED email/page open (PC-1); T4 live send unverified (publisher 503); T7 parity inputs only (S2/S7 deferred by the user); Sprint 0002 S5 carried (B1)"
+      vocabulary: "v4 changes complete; pass email + link proven locally (Mailpit); static QR only, desk verification and rotation unverified; live email unverified (publisher 503); hosted capture unverified (B1); parity and agents deferred"
+      summary: docs/sprints/drafts/SPRINT-0003-EXECUTION-SUMMARY.md
       quality:
         online-join-bff: "tsc clean; lint 0; 70 suites / 698 passed (2 pre-existing skips); coverage 97.22/86.76/96.44/98.12 (floors 84/67/67/84); demo 88/88 incl. Demo 3"
         online-join-ui: "tsc 8 pre-existing errors (unchanged); lint 0 errors / 760 warnings; 109 suites / 734 tests, 733 passed + the pre-existing transformers.test.ts tz baseline; coverage 92.90/85.65/88.46/92.90 (floors 80/80); build ok"

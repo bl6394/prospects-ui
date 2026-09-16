@@ -114,9 +114,9 @@
         "code-entry"
       ],
       "build": "#main .offers.single",
-      "placeholder": true,
       "reason": "Single-offer clubs (Riverside 90030) render one centred card inside `.offers.single`; v4 has no single-offer design (three cards only). Only the grid template / justification of `.offers` is exempt; the card itself is compared. Parity club 90033 renders three cards, so this delta has no pixel effect in the loop.",
-      "cite": "SPRINT-0003 U3 'approved delta AD-10 — v4 has no single-offer design' (renumbered AD-11 here); CR-10 'Riverside stays single-offer'; Change_Requests_2026-09-15 §A CR-10 notes"
+      "cite": "SPRINT-0003 U3 'approved delta AD-10 — v4 has no single-offer design' (renumbered AD-11 here); CR-10 'Riverside stays single-offer'; Change_Requests_2026-09-15 §A CR-10 notes",
+      "status": "approved-by-plan (SPRINT-0003 §Use Cases U3/U11/U12); DESIGN review pending (PC-1)"
     },
     {
       "id": "AD-12",
@@ -125,10 +125,10 @@
         "done-saved",
         "done-not-saved"
       ],
-      "build": "#main .pass .view-pass, #summary .srow.view-pass, #main .resend-pass",
-      "placeholder": true,
+      "build": "#main [data-testid=pass-links], #summary [data-testid=receipt-view-pass], #main #resendPass",
       "reason": "'View your pass' link under the pass sentence and as a Receipt row, plus the 'Resend pass email' secondary action; v4's done page (lines 582-600) has neither (CR-13 comes from D41 / Design v2 alignment rows 8-9, not from v4).",
-      "cite": "SPRINT-0003 U11, U12, §6 'Done page and receipt'; CR-13; PRD v3.4 D41, FR-P15, UC J1 step 6; Change_Requests_2026-09-15 §A CR-13"
+      "cite": "SPRINT-0003 U11, U12, §6 'Done page and receipt'; CR-13; PRD v3.4 D41, FR-P15, UC J1 step 6; Change_Requests_2026-09-15 §A CR-13",
+      "status": "approved-by-plan (SPRINT-0003 §Use Cases U3/U11/U12); DESIGN review pending (PC-1)"
     },
     {
       "id": "AD-13",
@@ -138,9 +138,9 @@
         "done-not-saved"
       ],
       "element": "done.sm",
-      "placeholder": true,
       "reason": "Truthful delivery variants of the v4 sentence (line 590): `pending` → 'We're sending your pass and door QR code to {masked}. You can view your pass here.'; `failed` → 'We couldn't email your pass and door QR code to {masked}. You can view your pass here, or say your name at the front desk.'; `not-attempted` → desk sentence only. The `sent` text is v4 verbatim and is compared, not exempt.",
-      "cite": "SPRINT-0003 U12 '(approved deltas)', §6 sentence table; CR-12; Change_Requests_2026-09-15 §D"
+      "cite": "SPRINT-0003 U12 '(approved deltas)', §6 sentence table; CR-12; Change_Requests_2026-09-15 §D",
+      "status": "approved-by-plan (SPRINT-0003 §Use Cases U3/U11/U12); DESIGN review pending (PC-1)"
     }
   ],
   "prototype": {

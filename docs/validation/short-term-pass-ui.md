@@ -69,3 +69,26 @@ Screenshots in `docs/validation/screenshots/sprint-0001/` (full-page, 1440×900 
 **Defect found and fixed during the pass:** on the new-visitor step the terms checkbox was disabled, so only the modal could accept terms and Pay stayed disabled. Cause: `PayBar` disabled the checkbox while the slice had no `order`, and the new-visitor identify response carried no order even though the BFF had created the order shell. Fix: the BFF returns `order` on the `newVisitor` outcome, the slice stores it, and the checkbox is disabled only while submitting. Route, slice and component tests updated.
 
 **Not covered by this pass:** real Pay Page hosted fields (mock capture used; gate G4 still pending B1); design sign-off by a named owner (G2 evidence is now available for that review).
+
+## Sprint 0003 — parity inputs re-baselined on Design v4 (D1, orchestrator, 2026-09-16; harness NOT run)
+
+`tools/day-pass-harness/parity/elements.json` v2 and `approved-deltas.json` v2 now describe `docs/prd/day-passv4.html` (sha256 `c0a5fd8d3f511705145687037a3cc7a02a3163ad75d902a4282eefc391316616`). The parity loop and the agent runs stay **deferred by the user**; nothing under `tools/` was executed.
+
+**Thirteen states × two widths (1440×1000, 375×900):**
+
+| State | Prototype reaches it by | Build reaches it by | v4 lines |
+|---|---|---|---|
+| identify | load | `/signup/day-pass?club=90033` | 160–190, 451–466 |
+| identify-offer-3day | click `#offer-d3` | click `#offer-day-pass-gym-floor-3` (toast masked) | 465, 735 |
+| identify-offer-5day | click `#offer-d5` | click `#offer-day-pass-gym-floor-5` (toast masked) | 465, 735 |
+| code-entry | enter `m@m.com`, Continue | same (cards stay selectable) | 192–214 |
+| recognized | code 000000 | code from the hooks outbox | 520–560 |
+| recognized-new-card | "Use a different card" | same (hosted frame masked, AD-04) | 540–560 |
+| new-visitor | `parity-new-visitor@stp.test` | same | 480–518 |
+| done-saved | pay with save on | same — **no `.qr`** | 585–592, 610 |
+| done-not-saved | pay with save off | same | 585–592 |
+| dialog-waiver / dialog-pass-terms / dialog-stored-card / dialog-privacy | open from the sidebar consent block | same | 360–398 |
+
+**Selector coverage:** 105 elements; the 14 v4 additions (radiogroup, `.days`, per-card ids, `.lead`, View-your-pass rows) were completed against the UI lane's shipped selectors (`OfferCards`, `OfferCard`, `PassBlock`, `OrderSummary`); `done.qr` and the `qr-modules` mask were removed. Build-only elements (`done.view`, `side.row.view`) carry `buildOnly: true` and `proto: null`.
+
+**Approved deltas:** AD-01…AD-10 re-cited against v4; AD-11 single-offer grid (Riverside), AD-12 "View your pass" link + Receipt row + "Resend pass email" (build-only; CR-13), AD-13 truthful delivery variants of the v4 sentence (`pending` / `failed` / `not-attempted`). AD-11…AD-13 are approved by the sprint plan and await DESIGN review (blocker PC-1).

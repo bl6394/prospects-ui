@@ -292,8 +292,8 @@
       ],
       "text": false,
       "geometry": true,
-      "stub": true,
-      "note": "v4 line 163/465: role=radiogroup aria-label=\"Choose a pass\"; grid repeat(3,minmax(0,1fr)) (CR-15); Riverside .offers.single is AD-11"
+      "note": "v4 line 163/465: role=radiogroup aria-label=\"Choose a pass\"; grid repeat(3,minmax(0,1fr)) (CR-15); Riverside .offers.single is AD-11",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.days",
@@ -307,8 +307,8 @@
       ],
       "text": true,
       "geometry": true,
-      "stub": true,
-      "note": "v4 line 176/461: \"1-day pass\" / \"3-day pass\" / \"5-day pass\" (CR-15)"
+      "note": "v4 line 176/461: \"1-day pass\" / \"3-day pass\" / \"5-day pass\" (CR-15)",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.radio",
@@ -322,8 +322,8 @@
       ],
       "text": false,
       "geometry": true,
-      "stub": true,
-      "note": "v4 line 167-170: custom radio indicator; checked state follows the selected card"
+      "note": "v4 line 167-170: custom radio indicator; checked state follows the selected card",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.icon",
@@ -337,8 +337,8 @@
       ],
       "text": false,
       "geometry": true,
-      "stub": true,
-      "note": "v4 line 178: 32 px icon (CR-15)"
+      "note": "v4 line 178: 32 px icon (CR-15)",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.1day",
@@ -352,8 +352,8 @@
       ],
       "text": false,
       "geometry": false,
-      "stub": true,
-      "note": "v4 line 453: input#offer-{key} name=pass; build id = offer-{offerId}; checked on identify"
+      "note": "v4 line 453: input#offer-{key} name=pass; build id = offer-{offerId}; checked on identify",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.3day",
@@ -367,8 +367,8 @@
       ],
       "text": false,
       "geometry": false,
-      "stub": true,
-      "note": "checked on identify-offer-3day"
+      "note": "checked on identify-offer-3day",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.5day",
@@ -382,8 +382,8 @@
       ],
       "text": false,
       "geometry": false,
-      "stub": true,
-      "note": "checked on identify-offer-5day"
+      "note": "checked on identify-offer-5day",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.1day.card",
@@ -397,8 +397,8 @@
       ],
       "text": true,
       "geometry": true,
-      "stub": true,
-      "note": "v4 line 452: the .offer label; .selected / :has(input:checked) border"
+      "note": "v4 line 452: the .offer label; .selected / :has(input:checked) border",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.3day.card",
@@ -412,7 +412,7 @@
       ],
       "text": true,
       "geometry": true,
-      "stub": true
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.5day.card",
@@ -426,12 +426,12 @@
       ],
       "text": true,
       "geometry": true,
-      "stub": true
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.offer.chosen.checked",
       "proto": "#main .offer:has(input:checked) .chosen",
-      "build": "#main .offer:has(input:checked) .chosen",
+      "build": "#main .offer.selected .chosen",
       "states": [
         "identify",
         "identify-offer-3day",
@@ -440,8 +440,8 @@
       ],
       "text": true,
       "geometry": true,
-      "stub": true,
-      "note": "v4 line 171-172: \"Selected\" chip visible on the checked card only"
+      "note": "v4 line 171-172: \"Selected\" chip visible on the checked card only; build marks the checked card .selected (no :has() dependency)",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.lead",
@@ -455,8 +455,8 @@
       ],
       "text": false,
       "geometry": true,
-      "stub": true,
-      "note": "v4 line 162: flex 1 1 300px, max-width 545px (CR-15)"
+      "note": "v4 line 162: flex 1 1 300px, max-width 545px (CR-15)",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)"
     },
     {
       "id": "identify.email.label",
@@ -1323,29 +1323,31 @@
     },
     {
       "id": "done.view",
-      "proto": "#main .pass .view-pass",
-      "build": "#main .pass .view-pass",
+      "proto": null,
+      "build": "#main .pass .pass-links [data-testid=view-pass]",
       "states": [
         "done-saved",
         "done-not-saved"
       ],
       "text": true,
       "geometry": true,
-      "stub": true,
-      "note": "AD-12: \"View your pass\" link under the pass sentence (CR-13) — no v4 element; build-only"
+      "note": "AD-12: \"View your pass\" link under the pass sentence (CR-13) — build-only (no v4 element); href /signup/pass/pv1.…, target _blank",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)",
+      "buildOnly": true
     },
     {
       "id": "side.row.view",
-      "proto": "#summary .srow.view-pass",
-      "build": "#summary .srow.view-pass",
+      "proto": null,
+      "build": "#summary [data-testid=receipt-view-pass]",
       "states": [
         "done-saved",
         "done-not-saved"
       ],
       "text": true,
       "geometry": true,
-      "stub": true,
-      "note": "AD-12: Receipt row \"View your pass\" (CR-13) — build-only"
+      "note": "AD-12: Receipt row \"View your pass\" (CR-13) — build-only",
+      "inventoried": "2026-09-16 D1 (UI lane C2/C4/C5/C8 selectors verified in repos/online-join-ui)",
+      "buildOnly": true
     }
   ],
   "stateNotes": {

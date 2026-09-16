@@ -1,2 +1,5 @@
 repos/
 .DS_Store
+
+# Gemini (agy) CLI skill mirror created during df-sprint critiques
+.agents/

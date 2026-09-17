@@ -82,7 +82,7 @@ sprints:
       commits:
         online-join-ui: [d97afbe, b6ae307, 44026f5, 72858ab, 37af94e, ad1ef91, d1ee1d7, 1f23204, 6243e8b]
         online-join-bff: [5915c96, 0121512, a3cdbfc, 77a5695, 0fc4365, a3b3332, 295edde, 0774fb8, d829dde, 562b002, a0cbb58, 6dfa0cd]
-      pushed: "prospect-wallet/sprint-0003 in both repos — UI head 6243e8b, BFF head 6dfa0cd"
+      pushed: "prospect-wallet/sprint-0003 in both repos — UI head 6243e8b, BFF head 65c1a8d (merge of sprint-0001 Sonar fixes over 6dfa0cd; smoke 240/240 re-run)"
       pull_requests:
         online-join-ui: https://github.com/abcfinancial/online-join-ui/pull/525
         online-join-bff: https://github.com/abcfinancial/online-join-bff/pull/99

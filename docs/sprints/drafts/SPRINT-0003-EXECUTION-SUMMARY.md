@@ -58,6 +58,10 @@ Carried unchanged: Sprint 0002 S5 (hosted Pay Page, B1), S2/S7 (harness, deferre
 
 CF-04 pricing and club → duration matrix (PM); CF-05 window semantics / Q19 (PM); CF-06 lifetime beyond 24 h, admit interval, anomalies (ENG+PM); CF-07 static vs link-only, desk verifier (PM/PASS); PC-1 designs (DESIGN); PA-2 dev ingress prefix for `STP_PUBLIC_BASE_URL` (PLATFORM); durable credential store + key rotation + staff revoke (PLATFORM); rotating QR (PRODUCT+SECURITY); sprint-wide mandatory `generation` (BFF); club sales flag vs issued-pass retrieval (PRODUCT+SECURITY); B1 hosted proof; live publisher; harness lane when the user says; RQ-8 prerelease bump; RQ-9 retarget PRs to `main` after #524 / #96.
 
+## 6a. Post-execution merge (2026-09-16)
+
+PR #96 (`prospect-wallet/sprint-0001`) received five Sonar commits (`be8aa9e`…`50a54c4`; quality gate failed → passed, 0 new issues / 0 hotspots) plus four fixes from another agent. Merged into `prospect-wallet/sprint-0003` as `65c1a8d` (ten conflicts; Sprint 0003 receipt snapshot, credential mint and v3 delivery re-homed into the Sonar step functions). Post-merge: tsc clean, lint 0, jest 71 / 709 passed, coverage 97.15 / 86.37 / 96.79 / 98.18, demo 88 / 88, browser smoke 240 / 240 on the rebuilt BFF. PR #99 description updated.
+
 ## 7. Local state after the run
 
-BFF on :3000 built from `6dfa0cd` (`node --env-file=.env dist/src/server`, `.env` now has `STP_PUBLIC_BASE_URL`, `STP_PASS_LINK_SECRET`, `STP_PASS_LINK_GRACE_HOURS`), UI dev server on :3001, Mailpit up. Entry `http://localhost:3000/signup/day-pass?club=90033`.
+BFF on :3000 built from `65c1a8d` (`node --env-file=.env dist/src/server`, `.env` now has `STP_PUBLIC_BASE_URL`, `STP_PASS_LINK_SECRET`, `STP_PASS_LINK_GRACE_HOURS`), UI dev server on :3001, Mailpit up. Entry `http://localhost:3000/signup/day-pass?club=90033`.

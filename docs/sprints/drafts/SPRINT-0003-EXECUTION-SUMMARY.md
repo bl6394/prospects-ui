@@ -64,4 +64,4 @@ PR #96 (`prospect-wallet/sprint-0001`) received five Sonar commits (`be8aa9e`…
 
 ## 7. Local state after the run
 
-BFF on :3000 built from `65c1a8d` (`node --env-file=.env dist/src/server`, `.env` now has `STP_PUBLIC_BASE_URL`, `STP_PASS_LINK_SECRET`, `STP_PASS_LINK_GRACE_HOURS`), UI dev server on :3001, Mailpit up. Entry `http://localhost:3000/signup/day-pass?club=90033`.
+BFF on :3000 built from `7e775b8` (second merge from sprint-0001: waiver retry after `WAIVER_HASH` 409; 710 tests, smoke 240/240 again) (`node --env-file=.env dist/src/server`, `.env` now has `STP_PUBLIC_BASE_URL`, `STP_PASS_LINK_SECRET`, `STP_PASS_LINK_GRACE_HOURS`), UI dev server on :3001, Mailpit up. Entry `http://localhost:3000/signup/day-pass?club=90033`.

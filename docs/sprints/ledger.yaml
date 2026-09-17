@@ -82,7 +82,8 @@ sprints:
       commits:
         online-join-ui: [d97afbe, b6ae307, 44026f5, 72858ab, 37af94e, ad1ef91, d1ee1d7, 1f23204, 6243e8b]
         online-join-bff: [5915c96, 0121512, a3cdbfc, 77a5695, 0fc4365, a3b3332, 295edde, 0774fb8, d829dde, 562b002, a0cbb58, 6dfa0cd]
-      pushed: "prospect-wallet/sprint-0003 in both repos — UI head 6243e8b, BFF head 7e775b8 (merges of sprint-0001 Sonar fixes and the waiver-retry fix over 6dfa0cd; smoke 240/240 re-run on each)"
+      pushed: "prospect-wallet/sprint-0003 in both repos, re-based onto main 2026-09-17 after #96/#524 were squash-merged — UI head dca2edd, BFF head ff238c1 (single squashed commits; pre-rebase history at tag prospect-wallet/sprint-0003-history-20260917: UI 74baf0f, BFF 7e775b8); smoke 240/240 re-run on the rebased build"
+      pr_base: "main (GitHub retargeted #99/#525 when the sprint-0001 PRs merged); titles changed to Conventional Commits so the version-bump gate lets CI run"
       pull_requests:
         online-join-ui: https://github.com/abcfinancial/online-join-ui/pull/525
         online-join-bff: https://github.com/abcfinancial/online-join-bff/pull/99

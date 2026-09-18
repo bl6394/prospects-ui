@@ -319,20 +319,20 @@ Selection: `services/shortTermPass/adapters/index.ts` builds the set from `STP_A
 |---|---|---|---|
 | Contract v4 frozen; v3 fields deprecated in both type files; `tsc` green | done 2026-09-18 | this §4; BFF `schemas.ts`, UI `interfaces/api/shortTermPass.ts` | V0 · UI+BFF |
 | Fixtures v4 (§7), `validity.ts` v4 helpers with boundary tests, UI factories | done (A4) | `catalog.test.ts`, `identityDirectory.test.ts`, `consentTemplates.test.ts`, `validity.test.ts`, UI `shortTermPassTestData.test.ts` | V0 |
-| Removal inventory executed with `rg` proof | B0 / C0 | `SPRINT-0004-BLOCKERS.md` §Removal inventory | V0 / V4 · SECURITY+BFF+UI |
-| Catalog-driven single-visit checkout (U1–U6) | B2, B3, C1–C3 | router tests, jest tables, smoke | V1 · PRODUCT+QA |
-| Design v6 parity, approved deltas (VALID_DAYS, adultCb, refund sentence CF-16, "Core South" → `{legalName}`, perks not rendered — D57) | C2–C9 | copy / layout tables, screenshots 1440 / 375 | V2 · UI+DESIGN |
-| Purchase order and recovery (U8–U12, U15, U24) | B4, B7, B8 | orchestrator + `compensation.test.ts`, demo 3 / 4 / 6 | V3 · BFF+QA+PK |
-| No QR, no pass page, no age gate (U25 part) | B0, C0, B6, B10 | leak tests, lockfiles, guard tests | V4 · SECURITY+BFF+UI |
-| Consent and opt-in evidence (U7, U13) | B5, C4 | snapshot tests, both lanes | V5 · LEGAL(observer)+BFF |
-| Quality floors, Sonar, demo 0–6 | E1 | validation docs | V6 |
-| Host-scoped routing, helm PR, dev smoke on both hosts, DataTrak adapter unit-pinned, live read | B12, C8, D1–D3, E3, E4 | `standaloneHost.test.ts`, smoke §dev, this §8a | V7 · PLATFORM+QA — each item its own verdict |
-| DataTrak catalog **live read** | **blocked** (CF-13: fields absent; CF-14: member-less query refused) | §8a(a) | E4 records blocked · Chancy → PK |
+| Removal inventory executed with `rg` proof | done — BFF B0 `61b32cf`, UI C0 `5b6e541`; `rg` proof in `SPRINT-0004-BLOCKERS.md` §Removal inventory | `SPRINT-0004-BLOCKERS.md` §Removal inventory | V0 / V4 · SECURITY+BFF+UI |
+| Catalog-driven single-visit checkout (U1–U6) | done — **mock** (BFF router suites; UI C1–C3 tables; E2 smoke 71 / 71 Riverside + Core) | router tests, jest tables, smoke | V1 · PRODUCT+QA |
+| Design v6 parity, approved deltas (VALID_DAYS, adultCb, refund sentence CF-16, "Core South" → `{legalName}`, perks not rendered — D57) | done — copy / layout tables (C9), screenshots 1440 / 375 / 320–440; DESIGN observer not consulted this sprint | copy / layout tables, screenshots 1440 / 375 | V2 · UI+DESIGN |
+| Purchase order and recovery (U8–U12, U15, U24) | done — **mock** (orchestrator + `compensation.test.ts`; demo 3 / 4 / 6; E2 flows decline → deactivated, decline → reverted, RECONCILING → compensate) | orchestrator + `compensation.test.ts`, demo 3 / 4 / 6 | V3 · BFF+QA+PK |
+| No QR, no pass page, no age gate (U25 part) | done — leak / static scans in both repos, lockfiles, `GET /passes/*` 404, E2 state / DOM scans | leak tests, lockfiles, guard tests | V4 · SECURITY+BFF+UI |
+| Consent and opt-in evidence (U7, U13) | done — snapshot tests both lanes; E2 Kelly snapshot `marketingOptIn {optedIn, templateVersion, renderedHash}`; LEGAL observer not consulted | snapshot tests, both lanes | V5 · LEGAL(observer)+BFF |
+| Quality floors, Sonar, demo 0–6 | done — UI 111 / 112 suites (transformers baseline), 95.75 % lines / statements; BFF 68 / 68, 97.42 / 85.98 / 97.13 / 98.26; demo 58 / 58; lint clean both; Sonar: first scan failed on both PRs, findings fixed, re-scan to be read (execution summary) | validation docs | V6 |
+| Host-scoped routing, helm PR, dev smoke on both hosts, DataTrak adapter unit-pinned, live read | routing: done locally (E2 standalone-host flow on `guestpass.localhost`); helm #3090 open, unmerged; E3: pass for the deployed v3 build, v4 assertions pending the deploy; adapter unit-pinned; live read blocked (E4) | `standaloneHost.test.ts`, smoke §dev, this §8a | V7 · PLATFORM+QA — each item its own verdict |
+| DataTrak catalog **live read** | **blocked** (CF-13: fields absent; CF-14: member-less query refused); E4 boot 2026-09-18 with `STP_CATALOG_SOURCE=datatrak` failed closed (404 on `POST /checkouts` for 09003 / 90030) — the dev service host did not resolve from the executor's network in that session, so no live shape was observed | §8a(a); smoke §live | E4 records blocked · Chancy → PK |
 | Prospect create / repaint / deactivate **live** | mock only; platform `notEnabled` | §8 | CF-15 · Chancy / Mark |
 | Hosted capture (Pay Page) | unverified locally (B1); dev has credentials — E3 records the result truthfully | smoke §dev | PAYMENTS+QA |
-| LD flag `guest-pass-online` (club kind, default off) in dev / prod | pending PLATFORM ticket (D3); override stands in | — | CF-17 · PLATFORM |
-| DT credential in `platform-online-join-bff` | pending PLATFORM ticket once CF-13 holds | — | PLATFORM |
-| Cloudflare rules + prod host | pending PK | — | V-P3 · PK, RQ-5 |
+| LD flag `guest-pass-online` (club kind, default off) in dev / prod | pending PLATFORM ticket (D3) — **no ticket id issued**: the executor has no ticketing tool; handoff text in `SPRINT-0004-EXECUTION-SUMMARY.md` §Handoffs; override stands in | — | CF-17 · PLATFORM |
+| DT credential in `platform-online-join-bff` | pending PLATFORM ticket once CF-13 holds — no ticket id (same handoff) | — | PLATFORM |
+| Cloudflare rules + prod host | pending PK — D3 handoff, no ticket id | — | V-P3 · PK, RQ-5 |
 | Durable stores, service-owned reconciliation | not built (in-memory by declaration) | — | V-P1 |
 | Harness lane / simulated agents | deferred by the user | — | V-P5 · Mark |
 

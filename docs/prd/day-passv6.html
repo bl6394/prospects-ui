@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day pass · Day pass · single flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Ignite UI tokens — values read from the Ignite UI Kit Figma variables (Foundations).
+     Names follow the Figma variable paths. No hex appears anywhere below this block. */
+  :root{
+    --ig-foreground:#181818;            /* foreground/foreground */
+    --ig-muted:#727272;                 /* foreground/muted, field/placeholder */
+    --ig-border:#dedede;                /* border */
+    --ig-separator:#e4e4e4;             /* separator/separator */
+    --ig-background:#f5f5f5;            /* background/background */
+    --ig-surface:#ffffff;               /* surface/surface */
+    --ig-surface-2:#efefef;             /* surface/surface-secondary */
+    --ig-accent:#239cd3;                /* accent/accent */
+    --ig-accent-fg:#fcfcfc;             /* accent/accent-foreground */
+    --ig-default:#ebebeb;               /* default/default */
+    --ig-default-hover:#e1e1e2;         /* default/default-hover */
+    --ig-default-fg:#16191b;            /* default/default-foreground */
+    --ig-success-soft:#2ec85e26; --ig-success-fg:#307740;
+    --ig-danger-soft:#ff374526;  --ig-danger-fg:#a53436;
+    --ig-warning-soft:#f7a32926; --ig-warning-fg:#865e2c;
+    --ig-disabled-opacity:.5;
+
+    --ig-font:"Inter",system-ui,sans-serif;
+    --ig-text-xs:12px; --ig-leading-xs:16px;
+    --ig-text-sm:14px; --ig-leading-sm:20px;
+    --ig-text-base:16px; --ig-leading-base:24px;
+    --ig-text-lg:20px; --ig-leading-lg:28px;
+    --ig-text-xl:24px; --ig-leading-xl:32px;
+
+    --ig-radius-sm:4px; --ig-radius-md:6px; --ig-radius-xl:12px; --ig-radius-2xl:16px; --ig-radius-3xl:24px;
+    --ig-field-radius:12px;             /* field/radius */
+    --ig-control:40px;                  /* spacing/10 — Button base */
+    --ig-control-sm:36px;               /* spacing/9 — Button sm / fields */
+    --ig-shadow-sm:0 1px 4px -1px rgba(26,26,26,.05),0 1px 2px -1px rgba(26,26,26,.05);   /* shadows/sm */
+    --ig-shadow-field:0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.06),0 2px 4px rgba(0,0,0,.04); /* shadow-field */
+
+    --ig-s1:4px; --ig-s2:8px; --ig-s3:12px; --ig-s4:16px; --ig-s5:20px; --ig-s6:24px; --ig-s8:32px; --ig-s10:40px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--ig-background);color:var(--ig-foreground);font-family:var(--ig-font);font-size:var(--ig-text-sm);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  button,input{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--ig-foreground);outline-offset:2px;}
+
+  /* ---- prototype control bar — not product ---- */
+  .proto{background:var(--ig-foreground);color:var(--ig-surface);font-size:var(--ig-text-xs);display:flex;align-items:center;gap:var(--ig-s4);flex-wrap:wrap;padding:var(--ig-s2) var(--ig-s4);}
+  .proto b{font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+  .proto .hint{opacity:.75;}
+  .proto .spacer{flex:1;}
+  .proto button{background:transparent;color:var(--ig-surface);border:1px solid var(--ig-muted);border-radius:var(--ig-radius-md);padding:4px 10px;font-size:var(--ig-text-xs);font-weight:700;cursor:pointer;}
+  .proto button.on{background:var(--ig-accent);border-color:var(--ig-accent);}
+
+  /* ---- Templates/AppShell → header (.datatrak-header, 64px) ---- */
+  .dt-header{height:64px;background:var(--ig-surface);color:var(--ig-foreground);border-bottom:1px solid var(--ig-separator);display:flex;align-items:center;gap:var(--ig-s10);padding:0 var(--ig-s6);}
+  .dt-brand{display:flex;flex-direction:column;line-height:1;text-decoration:none;color:inherit;}
+  .dt-brand .word{font-weight:700;font-size:20px;letter-spacing:.1em;}
+  .dt-brand .word::before,.dt-brand .word::after{content:"||";opacity:.7;font-weight:400;letter-spacing:-.05em;margin:0 2px;}
+  .dt-brand .tag{font-size:8px;letter-spacing:.14em;text-transform:uppercase;margin-top:3px;opacity:.9;}
+  .dt-switcher{display:inline-flex;align-items:center;gap:var(--ig-s2);background:none;border:1px solid var(--ig-border);color:inherit;font-size:var(--ig-text-sm);font-weight:500;cursor:pointer;height:var(--ig-control-sm);padding:0 var(--ig-s4);border-radius:var(--ig-radius-3xl);}
+  .dt-switcher:hover{background:var(--ig-default);}
+  .dt-switcher svg{width:12px;height:12px;}
+  .dt-header .end{margin-left:auto;font-size:var(--ig-text-xs);font-weight:500;color:var(--ig-muted);}
+
+  /* ---- Organisms/Tabs used as secondary nav (Figma Nav/Secondary, 50px) ---- */
+  .dt-tabs{height:48px;background:var(--ig-surface);border-bottom:1px solid var(--ig-separator);display:flex;align-items:stretch;gap:var(--ig-s6);padding:0 48px;}
+  .dt-tab{display:flex;align-items:center;padding:0 var(--ig-s2);font-size:var(--ig-text-sm);font-weight:500;color:var(--ig-muted);border-bottom:2px solid transparent;text-decoration:none;}
+  .dt-tab[aria-current="page"]{font-weight:600;letter-spacing:0;border-bottom-color:var(--ig-foreground);}
+  @media (max-width:640px){.dt-tabs{padding:0 var(--ig-s4);gap:var(--ig-s3);}}
+
+  /* ---- page ---- */
+  .page{max-width:1440px;margin:0 auto;padding:29px 30px 40px;display:grid;grid-template-columns:minmax(0,1fr) 424px;align-items:start;}
+  @media (max-width:960px){.page{grid-template-columns:1fr;padding:var(--ig-s4);}}
+
+  /* ---- Organisms/Widget (boot:widget) as card ---- */
+  .dt-widget{background:var(--ig-surface);border-radius:var(--ig-radius-2xl);box-shadow:var(--ig-shadow-sm);min-height:751px;padding:var(--ig-s10);position:relative;z-index:1;}
+  .dt-widget.secondary{background:var(--ig-surface);margin-left:-35px;padding-left:calc(35px + var(--ig-s6));padding-right:var(--ig-s6);z-index:0;}
+  @media (max-width:960px){.dt-widget{min-height:0;padding:var(--ig-s6);} .dt-widget.secondary{margin-left:0;margin-top:var(--ig-s4);padding-left:var(--ig-s6);}}
+  .dt-widget-header h1{margin:0;font-size:var(--ig-text-xl);line-height:var(--ig-leading-xl);font-weight:600;letter-spacing:-.01em;}
+  .dt-widget-header p{margin:2px 0 0;font-size:var(--ig-text-sm);line-height:var(--ig-leading-sm);color:var(--ig-muted);}
+  .dt-widget-content{margin-top:var(--ig-s8);}
+  .stack{max-width:545px;}
+
+  /* ---- Molecules/FormField + Atoms/Label + Atoms/Input (boot:input) ---- */
+  .dt-field{display:flex;flex-direction:column;gap:var(--ig-s1);}
+  .dt-label{font-size:var(--ig-text-sm);font-weight:500;color:var(--ig-foreground);}
+  .dt-label .opt{font-weight:400;color:var(--ig-muted);}
+  .dt-input{height:var(--ig-control);width:100%;border:1px solid var(--ig-border);border-radius:var(--ig-field-radius);background:var(--ig-surface);box-shadow:var(--ig-shadow-field);padding:0 var(--ig-s3);font-size:var(--ig-text-sm);color:var(--ig-foreground);}
+  .dt-input::placeholder{color:var(--ig-muted);}
+  .dt-input:focus{outline:none;border-color:var(--ig-foreground);box-shadow:var(--ig-shadow-field),0 0 0 3px var(--ig-default);}
+  .dt-input[aria-invalid="true"]{border-color:var(--ig-danger-fg);}
+  .dt-help{font-size:var(--ig-text-xs);line-height:var(--ig-leading-xs);color:var(--ig-muted);margin-top:var(--ig-s1);}
+  .dt-help.err{color:var(--ig-danger-fg);font-weight:500;}
+  .inline{display:flex;gap:var(--ig-s6);align-items:flex-end;flex-wrap:wrap;}
+  .inline .dt-field{flex:1 1 280px;max-width:350px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--ig-s4);}
+  .grid2 .full{grid-column:1/-1;}
+  @media (max-width:520px){.grid2{grid-template-columns:1fr;}}
+
+  /* ---- Atoms/Button (boot:button) primary / secondary × medium(40) ---- */
+  .dt-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--ig-s1);height:var(--ig-control);padding:0 var(--ig-s4);border-radius:var(--ig-radius-3xl);font-size:var(--ig-text-base);font-weight:500;line-height:24px;cursor:pointer;border:1px solid transparent;background:var(--ig-accent);color:var(--ig-accent-fg);transition:background .15s,filter .15s;}
+  .dt-btn:hover{filter:brightness(.88);}
+  .dt-btn[hidden]{display:none;}
+  .dt-btn:disabled{opacity:var(--ig-disabled-opacity);cursor:not-allowed;}
+  .dt-btn.secondary{background:var(--ig-default);color:var(--ig-default-fg);}
+  .dt-btn.secondary:hover{background:var(--ig-default-hover);filter:none;}
+  .actions{margin-top:var(--ig-s6);display:flex;gap:var(--ig-s3);flex-wrap:wrap;align-items:center;}
+
+  /* ---- Atoms/TextLink (dt:link) ---- */
+  .dt-link{background:none;border:0;padding:0;color:var(--ig-foreground);font-size:var(--ig-text-sm);font-weight:500;text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
+  .dt-link:hover{filter:brightness(.88);}
+  .links{display:flex;gap:var(--ig-s3);flex-wrap:wrap;margin-top:var(--ig-s3);font-size:var(--ig-text-sm);color:var(--ig-muted);}
+
+  /* ---- Atoms/Alert ---- */
+  .dt-alert{display:flex;gap:var(--ig-s3);align-items:flex-start;border:0;border-radius:var(--ig-radius-xl);padding:var(--ig-s3) var(--ig-s4);background:var(--ig-default);color:var(--ig-default-fg);font-size:var(--ig-text-sm);}
+  .dt-alert[hidden]{display:none;}
+  .dt-alert.success{background:var(--ig-success-soft);color:var(--ig-success-fg);}
+  .dt-alert.danger{background:var(--ig-danger-soft);color:var(--ig-danger-fg);}
+  .dt-alert b{font-weight:700;}
+  .dt-alert .body{opacity:.85;margin-top:2px;}
+
+  /* ---- Atoms/Checkbox (boot:checkbox) ---- */
+  .dt-check{display:flex;gap:var(--ig-s3);align-items:flex-start;margin-top:var(--ig-s4);cursor:pointer;}
+  .dt-check input{appearance:none;width:16px;height:16px;flex:none;margin:2px 0 0;border:1px solid var(--ig-border);border-radius:var(--ig-radius-sm);background:var(--ig-surface);box-shadow:var(--ig-shadow-field);position:relative;cursor:pointer;}
+  .dt-check input:checked{background:var(--ig-accent);border-color:var(--ig-accent);}
+  .dt-check input:checked::after{content:"";position:absolute;left:4.5px;top:1px;width:4px;height:8px;border:solid var(--ig-accent-fg);border-width:0 2px 2px 0;transform:rotate(45deg);}
+  .dt-check .t{font-size:var(--ig-text-sm);font-weight:500;}
+  .dt-check .d{font-size:var(--ig-text-xs);color:var(--ig-muted);}
+
+  /* ---- section label + key/value (page-local) ---- */
+  .section{margin-top:var(--ig-s6);}
+  .section-title{font-size:var(--ig-text-sm);font-weight:600;margin:0 0 var(--ig-s2);}
+  .kv{display:flex;justify-content:space-between;gap:var(--ig-s3);font-size:var(--ig-text-sm);padding:var(--ig-s2) 0;border-bottom:1px solid var(--ig-border);}
+  .kv:last-child{border-bottom:0;}
+  .kv .k{color:var(--ig-muted);}
+  .kv .v{font-weight:500;font-variant-numeric:tabular-nums;}
+
+  /* ---- OTP (page-local composition of Atoms/Input) ---- */
+  .otp{display:flex;gap:var(--ig-s2);max-width:330px;}
+  .otp .dt-input{width:100%;height:48px;padding:0;text-align:center;font-size:var(--ig-text-lg);font-weight:600;font-variant-numeric:tabular-nums;}
+
+  /* ---- saved card row (page-local; SplitButton-adjacent selection row) ---- */
+  .paysel{display:flex;align-items:center;gap:var(--ig-s3);border:1px solid var(--ig-foreground);border-radius:var(--ig-radius-xl);padding:var(--ig-s3) var(--ig-s4);background:var(--ig-surface);}
+  .paysel .chip{width:34px;height:23px;border-radius:var(--ig-radius-sm);background:var(--ig-default);border:1px solid var(--ig-border);flex:none;}
+  .paysel .txt{flex:1;font-size:var(--ig-text-sm);font-weight:700;}
+  .paysel .txt small{display:block;font-weight:400;color:var(--ig-muted);font-size:var(--ig-text-xs);}
+  .paysel .check{color:var(--ig-foreground);font-weight:600;}
+
+  /* ---- pass card (page-local) ---- */
+  .pass{display:flex;gap:var(--ig-s4);align-items:center;border:1px solid var(--ig-border);border-radius:var(--ig-radius-2xl);padding:var(--ig-s4);max-width:545px;margin-top:var(--ig-s4);}
+  .pass .big{font-size:var(--ig-text-base);font-weight:700;}
+  .pass .sm b{color:var(--ig-foreground);font-weight:500;}
+  .pass .sm{font-size:var(--ig-text-xs);color:var(--ig-muted);margin-top:var(--ig-s1);}
+
+  /* ---- offer card: selectable radio card (Atoms/Checkbox radio styling, Widget surface) ---- */
+  .identify-row{display:flex;gap:var(--ig-s10);align-items:flex-start;}
+  .identify-row > .lead{flex:1 1 300px;min-width:0;max-width:545px;}
+  .offers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--ig-s4);flex:0 1 560px;}
+  .offer{position:relative;background:var(--ig-surface);border:1px solid var(--ig-border);border-radius:var(--ig-radius-2xl);padding:var(--ig-s8) var(--ig-s4) var(--ig-s6);text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--ig-s2);cursor:pointer;}
+  .offer.selected,.offer:has(input:checked){border-color:var(--ig-foreground);box-shadow:0 0 0 1px var(--ig-foreground);}
+  .offer input{position:absolute;opacity:0;width:0;height:0;}
+  .offer .radio{position:absolute;left:var(--ig-s3);top:var(--ig-s3);width:18px;height:18px;border-radius:50%;border:1px solid var(--ig-border);background:var(--ig-surface);}
+  .offer input:checked ~ .radio{border-color:var(--ig-foreground);}
+  .offer input:checked ~ .radio::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--ig-foreground);}
+  .offer input:focus-visible ~ .radio{outline:2px solid var(--ig-accent);outline-offset:2px;}
+  .offer .chosen{position:absolute;right:var(--ig-s3);top:var(--ig-s3);font-size:var(--ig-text-xs);font-weight:500;color:var(--ig-success-fg);background:var(--ig-success-soft);border-radius:var(--ig-radius-3xl);padding:2px 8px;}
+  .offer input:not(:checked) ~ .chosen{visibility:hidden;}
+  .offer svg{width:40px;height:40px;color:var(--ig-accent);margin-top:var(--ig-s2);}
+  .offer .price{font-size:32px;line-height:1;font-weight:600;letter-spacing:-.02em;color:var(--ig-foreground);margin-top:var(--ig-s2);}
+  .offer .name{font-size:var(--ig-text-base);font-weight:600;}
+  .offer .days{font-size:var(--ig-text-sm);font-weight:500;color:var(--ig-muted);margin-top:-4px;}
+  .offer ul{list-style:none;margin:var(--ig-s2) 0 0;padding:0;font-size:var(--ig-text-sm);line-height:22px;}
+  .offer svg{width:32px;height:32px;}
+  @media (max-width:1250px){.identify-row{flex-direction:column;} .offers{flex-basis:auto;width:100%;max-width:640px;}}
+  @media (max-width:640px){.offers{grid-template-columns:1fr;}}
+
+  /* ---- payment method (Ignite: tiles, grouped field, Inter) ---- */
+  /* ---- save-card panel: Switch + description (Ignite surface-secondary) ---- */
+  .savecard{display:flex;gap:var(--ig-s4);align-items:flex-start;margin-top:var(--ig-s6);padding:var(--ig-s4) var(--ig-s5);background:var(--ig-surface-2);border-radius:var(--ig-radius-xl);cursor:pointer;}
+  .savecard input{position:absolute;opacity:0;width:0;height:0;}
+  .switch{width:44px;height:24px;border-radius:var(--ig-radius-3xl);background:var(--ig-border);flex:none;position:relative;transition:background .15s;margin-top:2px;}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--ig-surface);box-shadow:var(--ig-shadow-sm);transition:left .15s;}
+  .savecard input:checked + .switch{background:var(--ig-accent);}
+  .savecard input:checked + .switch::after{left:22px;}
+  .savecard input:focus-visible + .switch{outline:2px solid var(--ig-foreground);outline-offset:2px;}
+  .savecard .t{display:block;font-size:var(--ig-text-base);font-weight:500;line-height:var(--ig-leading-base);}
+  .savecard .d{display:block;font-size:var(--ig-text-sm);line-height:var(--ig-leading-sm);color:var(--ig-muted);margin-top:2px;}
+  .savecard .d b{color:var(--ig-foreground);font-weight:500;}
+  .savecard .dt-link{font-size:inherit;}
+  .req::before{content:"* ";color:var(--ig-foreground);}
+  .cardgroup{border:1px solid var(--ig-border);border-radius:var(--ig-field-radius);background:var(--ig-surface);box-shadow:var(--ig-shadow-field);overflow:hidden;}
+  .cardgroup .row{display:flex;align-items:center;}
+  .cardgroup .row + .row{border-top:1px solid var(--ig-border);}
+  .cardgroup .cell{flex:1;display:flex;align-items:center;gap:var(--ig-s2);min-width:0;}
+  .cardgroup .cell + .cell{border-left:1px solid var(--ig-border);}
+  .cardgroup input{height:48px;width:100%;border:0;background:transparent;padding:0 var(--ig-s4);font-size:var(--ig-text-base);color:var(--ig-foreground);outline:none;min-width:0;}
+  .cardgroup input::placeholder{color:var(--ig-muted);}
+  .cardgroup:focus-within{border-color:var(--ig-foreground);box-shadow:var(--ig-shadow-field),0 0 0 3px var(--ig-default);}
+  .cardgroup[aria-invalid="true"]{border-color:var(--ig-danger-fg);}
+  .marks{display:flex;gap:6px;padding-right:var(--ig-s4);flex:none;}
+  .mark{height:22px;min-width:40px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--ig-border);border-radius:var(--ig-radius-sm);background:var(--ig-surface);font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ig-muted);}
+  .marks.detected .mark{opacity:.35;}
+  .marks.detected .mark.on{opacity:1;color:var(--ig-foreground);border-color:var(--ig-foreground);}
+  .cardgroup .info{width:20px;height:20px;color:var(--ig-muted);flex:none;margin-right:var(--ig-s4);}
+  .select{position:relative;}
+  .select select{appearance:none;height:48px;width:100%;border:1px solid var(--ig-border);border-radius:var(--ig-field-radius);background:var(--ig-surface);box-shadow:var(--ig-shadow-field);padding:0 40px 0 var(--ig-s4);font:inherit;font-size:var(--ig-text-base);font-weight:500;color:var(--ig-foreground);}
+  .select::after{content:"";position:absolute;right:18px;top:50%;width:0;height:0;transform:translateY(-3px);border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid var(--ig-foreground);pointer-events:none;}
+  .select select:focus{outline:none;border-color:var(--ig-foreground);box-shadow:var(--ig-shadow-field),0 0 0 3px var(--ig-default);}
+  .payfields .dt-field{margin-top:var(--ig-s5);}
+  .payfields > .dt-field:first-child{margin-top:var(--ig-s3);}
+  .payfields .dt-input{height:48px;font-size:var(--ig-text-base);}
+  .payfields .grid2{gap:var(--ig-s6);grid-template-columns:2fr 1fr;}
+  .payfields .grid2 .dt-field{margin-top:0;}
+  .payfields .dt-label{margin-bottom:var(--ig-s2);}
+
+  /* ---- order summary ---- */
+  .srow{display:flex;justify-content:space-between;gap:var(--ig-s3);font-size:var(--ig-text-sm);padding:var(--ig-s2) 0;border-bottom:1px solid var(--ig-border);}
+  .srow:last-of-type,.srow:has(+ .total){border-bottom:0;}
+  .srow .k{color:var(--ig-muted);}
+  .srow .v{font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .side-actions{margin-top:var(--ig-s4);}
+  .side-actions .dt-btn{width:100%;}
+  .total{display:flex;justify-content:space-between;margin-top:var(--ig-s3);padding-top:var(--ig-s3);border-top:1px solid var(--ig-foreground);font-weight:600;font-size:var(--ig-text-base);}
+  .fine{font-size:var(--ig-text-xs);color:var(--ig-muted);margin-top:var(--ig-s4);}
+  .skeleton{display:flex;flex-direction:column;gap:var(--ig-s1);margin-bottom:var(--ig-s6);}
+  .skeleton i{display:block;height:12px;border-radius:var(--ig-radius-3xl);background:var(--ig-default);width:100%;}
+  .skeleton i.short{width:82%;}
+
+  .syslog{margin-top:var(--ig-s6);padding-top:var(--ig-s4);border-top:1px dashed var(--ig-border);}
+  .syslog[hidden]{display:none;}
+  .syslog .section-title{color:var(--ig-muted);}
+  .syslog ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .syslog li{font-size:var(--ig-text-xs);line-height:1.45;color:var(--ig-foreground);padding:6px 10px;border-radius:var(--ig-radius-md);background:var(--ig-surface-2);border:0;border-left:3px solid var(--ig-border);font-family:ui-monospace,Menlo,monospace;}
+  .syslog li b{color:var(--ig-foreground);}
+  .syslog li.ok{border-left-color:var(--ig-success-fg);}
+  .syslog li.warn{border-left-color:var(--ig-danger-fg);}
+  .syslog .empty{font-size:var(--ig-text-xs);color:var(--ig-muted);font-style:italic;}
+
+  /* ---- Organisms/Modal (boot:fakeModal) ---- */
+  .dt-backdrop{position:fixed;inset:0;background:rgba(24,24,24,.4);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:var(--ig-s6);z-index:50;}
+  .dt-backdrop[hidden]{display:none;}
+  .dt-modal{background:var(--ig-surface);border-radius:var(--ig-radius-2xl);box-shadow:var(--ig-shadow-sm);width:100%;max-width:600px;max-height:85vh;display:flex;flex-direction:column;}
+  .dt-modal-header{display:flex;justify-content:space-between;align-items:center;gap:var(--ig-s3);padding:var(--ig-s4) var(--ig-s6);border-bottom:1px solid var(--ig-border);}
+  .dt-modal-header h2{margin:0;font-size:var(--ig-text-lg);font-weight:600;}
+  .dt-modal-x{background:none;border:0;font-size:24px;line-height:1;color:var(--ig-foreground);padding:2px 8px;border-radius:var(--ig-radius-sm);cursor:pointer;}
+  .dt-modal-x:hover{background:var(--ig-default);}
+  .dt-modal-body{padding:var(--ig-s4) var(--ig-s6);overflow:auto;font-size:var(--ig-text-sm);line-height:1.6;}
+  .dt-modal-body h3{font-size:var(--ig-text-sm);font-weight:600;margin:var(--ig-s4) 0 var(--ig-s1);}
+  .dt-modal-body h3:first-child{margin-top:0;}
+  .dt-modal-body p{margin:0 0 var(--ig-s2);}
+  .dt-modal-body h3{text-transform:uppercase;letter-spacing:.06em;font-size:var(--ig-text-xs);color:var(--ig-muted);}
+  .dt-modal-body ol{margin:0 0 var(--ig-s2);padding-left:20px;}
+  .dt-modal-body li{margin:2px 0;}
+  .dt-modal-body .note{color:var(--ig-muted);}
+  .dt-modal-meta{padding:var(--ig-s3) var(--ig-s6);border-top:1px solid var(--ig-separator);font-size:var(--ig-text-xs);line-height:var(--ig-leading-xs);color:var(--ig-muted);}
+  .agree{margin-top:var(--ig-s4);display:flex;flex-direction:column;gap:var(--ig-s3);}
+  .agree .dt-check{margin-top:0;align-items:flex-start;}
+  .agree .dt-check .t{font-weight:400;}
+  .agree .dt-check .t b{font-weight:500;}
+  .agree .dt-check .t .sub{color:var(--ig-muted);}
+  .agree .sentence{margin:0;font-size:var(--ig-text-sm);line-height:var(--ig-leading-sm);color:var(--ig-foreground);}
+  .agree .sentence b{font-weight:500;}
+  .dt-modal-footer{display:flex;justify-content:flex-end;gap:var(--ig-s3);padding:var(--ig-s3) var(--ig-s6);border-top:1px solid var(--ig-border);}
+  .termsrow{margin-top:var(--ig-s4);}
+  .termsrow .dt-check{margin-top:0;align-items:center;}
+  .termsrow .dt-check label{cursor:pointer;}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ig-foreground);color:var(--ig-surface);font-size:var(--ig-text-sm);padding:10px 16px;border-radius:var(--ig-radius-xl);box-shadow:var(--ig-shadow-sm);opacity:0;pointer-events:none;transition:all .2s ease;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .fade{animation:fade .18s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion:reduce){.fade{animation:none;} .dt-btn,.toast{transition:none;}}
+</style>
+</head>
+<body>
+
+<div class="proto" role="region" aria-label="Demo controls">
+  <b>Day pass · single flow</b>
+  <span class="hint">Every email gets a code first. After verifying: m@m.com → Welcome back; any other email → details page. Any 6 digits verify.</span>
+  <span class="spacer"></span>
+  <button id="toggleLog" class="on" type="button">Behind the scenes: on</button>
+  <button id="restart" type="button">Restart demo</button>
+</div>
+
+<header class="dt-header">
+  <a class="dt-brand" href="#" aria-label="Core Health and Fitness Club">
+    <span class="word">CORE</span>
+    <span class="tag">Health and fitness club</span>
+  </a>
+  <button class="dt-switcher" type="button" aria-haspopup="listbox">South
+    <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+  </button>
+  <span class="end">Secure checkout</span>
+</header>
+
+<nav class="dt-tabs" aria-label="Section">
+  <a class="dt-tab" href="#">Class</a>
+  <a class="dt-tab" href="#">Membership</a>
+  <a class="dt-tab" href="#" aria-current="page">Day Pass</a>
+  <a class="dt-tab" href="#">Visit</a>
+</nav>
+
+<div class="page">
+  <main class="dt-widget" id="main" aria-live="polite"></main>
+  <aside class="dt-widget secondary">
+    <div class="dt-widget-header">
+      <h1 id="sideTitle">Order Summary</h1>
+      <p id="sideSub">A breakdown of your order with us</p>
+    </div>
+    <div class="dt-widget-content">
+      <div id="summary"></div>
+      <div class="fine" id="fine"></div>
+      <div class="syslog" id="syslog">
+        <div class="section-title">Behind the scenes</div>
+        <ol id="log"></ol>
+        <div class="empty" id="logEmpty">Nothing yet. The lookup happens when you press Continue.</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="dt-backdrop" id="backdrop" hidden>
+  <div class="dt-modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" id="modal">
+    <div class="dt-modal-header"><h2 id="mTitle">Document</h2><button class="dt-modal-x" id="mClose" type="button" aria-label="Close">&times;</button></div>
+    <div class="dt-modal-body" id="mBody"></div>
+    <div class="dt-modal-meta" id="mMeta"></div>
+    <div class="dt-modal-footer"><button class="dt-btn secondary" id="mCloseBtn" type="button">Close</button><button class="dt-btn" id="mAgree" type="button">Agree and close</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const club = {
+    name:"Core Health and Fitness Club — South",
+    records:[
+      { id:"mbr_7f3a91", first:"Kelly", last:"Reyes", email:"m@m.com", phone:"5550192231",
+        card:{ brand:"Visa", last4:"4242", source:"Saved in the app last week" } }
+    ]
+  };
+  const PERKS = ["Classes","Steam & Sauna","Basketball court"];
+  const PRODUCTS = {
+    d1:{ key:"d1", name:"Gym Floor", label:"1-day pass", days:1, price:25.00, perks:PERKS },
+    d3:{ key:"d3", name:"Gym Floor", label:"3-day pass", days:3, price:60.00, perks:PERKS },   // demo pricing — confirm
+    d5:{ key:"d5", name:"Gym Floor", label:"5-day pass", days:5, price:90.00, perks:PERKS }    // demo pricing — confirm
+  };
+  let PRODUCT = PRODUCTS.d1;
+  let PRICE = PRODUCT.price;
+  function setProduct(key){ PRODUCT = PRODUCTS[key]; PRICE = PRODUCT.price; }
+
+  let S = fresh();
+  const CLUB = "Core Health and Fitness Club";
+  const DOCS = {
+    waiver: { title:"Liability Waiver", agree:true, meta:`Club document (configurable per club). Version 2026-09 · US template. Opening this is optional — nothing in checkout is gated on it. Open/close is logged silently as evidence of availability.`, body:`
+      <h3>Assumption of risk</h3>
+      <p>Using fitness facilities involves risk of injury. I confirm I am 18 or older, in condition to use the facilities, and I accept that risk.</p>
+      <h3>Release</h3>
+      <p>To the extent permitted by law, I release ${CLUB}, its staff and owners from claims for ordinary negligence arising from my use of the facilities during this pass. This does not release gross negligence or willful misconduct, and does not limit rights that cannot be waived in my province or state.</p>
+      <p class="note">Why this is a separate checkbox: exculpatory clauses are construed strictly and several states expect a distinct affirmative act. It is never bundled into the Pass Terms sentence.</p>` },
+    terms: { title:"Pass Terms", meta:`Version 2026-09 · US template. Opening this is optional — nothing in checkout is gated on it. Open/close is logged silently as evidence of availability.`, body:()=>`
+      <h3>What you're buying</h3>
+      <p>${esc(PRODUCT.label)} to ${CLUB}. ${esc(validityLabel())} — use by ${esc(expiryLabel())}. Price ${money(PRICE)} including tax. One-time purchase — no membership, no renewal, no recurring billing.</p>
+      <h3>Using the club</h3>
+      <p>Check in at the front desk with your pass or your name. Follow posted facility rules and staff instructions. Passes are personal and non-transferable.</p>
+      <h3>Refunds and cancellation</h3>
+      <p>Full refund any time before the pass is first used. <em>California clubs:</em> the per-state template inserts the Civ. Code §1812.85 five-business-day cancellation sentence here. <em>New York / Illinois / Ohio / Massachusetts:</em> gray under the health-club statutes — the statutory cancellation sentence is inserted by template where counsel elects.</p>
+      <h3>Who you're dealing with</h3>
+      <p>${CLUB} is the seller. ABC Fitness provides the checkout software and is not the owner or operator of the club.</p>` },
+    stored: { title:"Stored card terms", meta:`Visa Stored Credential Transaction Framework / Mastercard credential-on-file disclosure v1. Retained with timestamp, IP and the exact text shown, for the life of the stored card.`, body:`
+      <p>If you switch on <b>Save this card for next time</b>, here is exactly what that means:</p>
+      <ol>
+        <li><b>Which card:</b> only the brand and last four digits are shown to you and to club staff; the number itself is held as a token by our payment processor.</li>
+        <li><b>How it's used:</b> charged only when you choose to buy something and confirm the amount — here, in the app, or at the desk. No automatic, recurring or surprise charges.</li>
+        <li><b>If anything changes:</b> we'll email you at the address on file before any change to these terms takes effect.</li>
+        <li><b>Removing it:</b> any time, in the app or at the front desk. The card stays saved until you remove it or it expires.</li>
+      </ol>
+      <p class="note">No bank-account debit authorization is involved, so no Regulation E or Payments Canada H1 terms apply.</p>` },
+    marketing: { title:"Marketing communications", meta:`Optional. Not a condition of purchase. Checked state, timestamp and the exact text shown are retained as the TCPA prior-express-written-consent record.`, body:`
+      <p>By checking the applicable box below, you agree that Core South, may deliver or cause to be delivered to you at the telephone number provided by you above telephone calls, telemarketing calls, SMS messages (including text messages), voicemail messages and similar communications using automated systems and technology (including automatic telephone dialing systems), and/or artificial or prerecorded voice messages. Such communications would be about your account, as well as offers from Core South. You further acknowledge that you are not required to provide this consent, directly or indirectly, as a condition of purchasing any goods or services and that all contact information provided by you above is accurate. If you opt-in now, you will be able to opt-out later. Message and data rates may apply. Message frequency varies. For SMS: text HELP for help and text STOP to cancel messages.</p>` },
+    privacy: { title:"Privacy Notice", meta:`Version 2026-09 · US template. Opening this is optional — nothing in checkout is gated on it. Open/close is logged silently as evidence of availability.`, body:`
+      <h3>Notice at collection (CCPA §7012)</h3>
+      <p><b>What we collect:</b> name, mobile number and/or email, and payment card details (tokenized by our processor; we keep only the brand and last four digits).</p>
+      <p><b>Why:</b> to issue your pass and receipt, verify it's you next time, prevent fraud, and — only if you switch it on — keep a card in your wallet for purchases you choose to make.</p>
+      <p><b>Not sold or shared</b> for cross-context advertising. Retained for the life of your record at the club; delete on request.</p>
+      <p>${CLUB} is the business; ABC Fitness is its service provider. Full policy and your rights: link goes to the notice-at-collection section, not the top of the policy.</p>` }
+  };
+  let payAction = null; // set by bind() for the current step; sidebar Pay button calls it
+  function fresh(){
+    return { step:"identify", raw:"", channel:null, key:null, person:null, day:todayISO(),
+             otp:"", codeSent:false, adult:false, waiver:false, marketing:false, saveCard:false, useSaved:true, newCard:null, secondContact:"", showLog:true, log:[] };
+  }
+
+  function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+  const VALID_DAYS = 30;
+  function expiryLabel(){ const d=new Date(); d.setDate(d.getDate()+VALID_DAYS); return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}); }
+  function validityLabel(){
+    return PRODUCT.days===1 ? `One time use only, valid for ${VALID_DAYS} days` : `${PRODUCT.days} visits, valid for ${VALID_DAYS} days`;   // multi-day reading assumed — confirm
+  }
+  function dayLabel(short){
+    if(!S.day) return "—";
+    const [y,m,dd]=S.day.split("-").map(Number); const d=new Date(y,m-1,dd);
+    const txt=d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+    if(S.day===todayISO()) return short ? "Today" : `Today · ${txt}`;
+    return txt;
+  }
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const digits = s => (s||"").replace(/\D/g,"");
+  const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+  const isPhone = s => { const d = digits(s); return d.length===10 || (d.length===11 && d[0]==="1"); };
+  const normPhone = s => { let d = digits(s); if(d.length===11) d = d.slice(1); return d; };
+  const fmtPhone = d => d ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : "";
+  const maskPhone = d => d ? `(${d.slice(0,3)}) •••-${d.slice(6)}` : "";
+  const maskEmail = e => { if(!e) return ""; const [u,dom]=e.split("@"); return `${u[0]}${"•".repeat(Math.min(5,Math.max(3,u.length-1)))}@${dom}`; };
+  const money = n => `$${n.toFixed(2)}`;
+  const brandOf = num => { const d=digits(num); if(d[0]==="4") return "Visa"; if(d[0]==="5") return "Mastercard"; if(d[0]==="3") return "Amex"; if(d[0]==="6") return "Discover"; return "Card"; };
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function log(msg, kind){ S.log.push({msg, kind:kind||""}); renderLog(); }
+  function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
+
+  const KNOWN_EMAIL = "m@m.com";
+  function lookup(){
+    return S.key===KNOWN_EMAIL ? club.records[0] : null;   // demo rule: only m@m.com is a returning visitor
+  }
+  function contactLabel(){ return S.channel==="email" ? S.key : fmtPhone(S.key); }
+  function contactMasked(){ return S.channel==="email" ? maskEmail(S.key) : maskPhone(S.key); }
+
+  function header(title, sub){ return `<div class="dt-widget-header"><h1>${title}</h1>${sub?`<p>${sub}</p>`:""}</div>`; }
+
+  function render(){
+    const main = $("#main");
+    main.innerHTML = "";
+    const wrap = document.createElement("div"); wrap.className="fade";
+    wrap.innerHTML = ({identify, recognized, newvisitor, done})[S.step]();
+    main.appendChild(wrap);
+    renderSide();
+    bind();
+    const f = main.querySelector("[data-autofocus]"); if(f) f.focus();
+  }
+
+  function offerCard(p){
+    const on = p.key===PRODUCT.key;
+    return `
+      <label class="offer ${on?"selected":""}" for="offer-${p.key}">
+        <input type="radio" id="offer-${p.key}" name="pass" value="${p.key}" ${on?"checked":""}>
+        <span class="radio" aria-hidden="true"></span>
+        <span class="chosen">Selected</span>
+        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 20h28"/><rect x="3" y="14" width="6" height="12" rx="1"/><rect x="31" y="14" width="6" height="12" rx="1"/><rect x="9" y="11" width="5" height="18" rx="1"/><rect x="26" y="11" width="5" height="18" rx="1"/>
+        </svg>
+        <div class="price">${money(p.price).replace(".00","")}</div>
+        <div class="name">${esc(p.name)}</div>
+        <div class="days">${esc(p.label)}</div>
+        <ul>${p.perks.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      </label>`;
+  }
+  function offerCards(){ return `<div class="offers" role="radiogroup" aria-label="Choose a pass">${Object.values(PRODUCTS).map(offerCard).join("")}</div>`; }
+
+  function identify(){
+    const sent = S.codeSent;
+    return header(sent ? "Check your email!" : "Get your day pass!", sent ? `Enter the 6-digit code we sent to <b>${esc(contactMasked())}</b>` : "Choose your pass, then enter your email") + `
+      <div class="dt-widget-content identify-row">
+        ${offerCards()}
+        <div class="lead">
+          <div class="inline">
+            <div class="dt-field">
+              <label class="dt-label" for="ident">Email</label>
+              <input id="ident" class="dt-input" ${sent?"readonly":"data-autofocus"} type="email" inputmode="email" autocomplete="email" placeholder="Add your email here" value="${esc(S.raw)}">
+            </div>
+            ${sent ? `<button class="dt-btn secondary" id="changeContact" type="button">Change</button>` : `<button class="dt-btn secondary" id="continue" type="button">Continue</button>`}
+          </div>
+          ${sent ? `
+          <div class="dt-field fade" style="margin-top:var(--ig-s6)">
+            <span class="dt-label" id="otpLabel">6-digit code</span>
+            <div class="otp" id="otp" role="group" aria-labelledby="otpLabel">
+              ${[0,1,2,3,4,5].map(i=>`<input class="dt-input" type="text" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}" ${i===0?"data-autofocus":""}>`).join("")}
+            </div>
+            <div class="dt-help">Check your email!</div>
+          </div>
+          <div class="links">
+            <button class="dt-link" type="button" id="resend">Resend code</button>
+            </div>
+          <div class="actions"><button class="dt-btn" id="verifyBtn" type="button" disabled>Verify and continue</button></div>
+          ` : `<div class="dt-help err" id="identHelp" hidden></div>`}
+        </div>
+      </div>`;
+  }
+
+  const COUNTRIES = [["US","United States"],["CA","Canada"],["GB","United Kingdom"],["AU","Australia"],["IE","Ireland"]];
+  function cardForm(prefix, withSave){
+    return `
+      <div class="payfields">
+        <div class="dt-field"><label class="dt-label req" for="${prefix}name">Cardholder Name</label><input class="dt-input" id="${prefix}name" type="text" autocomplete="cc-name"></div>
+        <div class="dt-field">
+          <span class="dt-label req" id="${prefix}cardLbl">Card Information</span>
+          <div class="cardgroup" role="group" aria-labelledby="${prefix}cardLbl" id="${prefix}group">
+            <div class="row">
+              <div class="cell"><input id="${prefix}num" type="text" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234" aria-label="Card number" data-brand-target="${prefix}marks"></div>
+              <div class="marks" id="${prefix}marks" aria-hidden="true"><span class="mark" data-b="Visa">Visa</span><span class="mark" data-b="Mastercard">MC</span><span class="mark" data-b="Amex">Amex</span><span class="mark" data-b="Discover">Disc</span></div>
+            </div>
+            <div class="row">
+              <div class="cell"><input id="${prefix}exp" type="text" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" aria-label="Expiry"></div>
+              <div class="cell"><input id="${prefix}cvc" type="text" inputmode="numeric" autocomplete="cc-csc" placeholder="Security Code" aria-label="Security code">
+                <svg class="info" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10 9v5M10 6.5v.5"/></svg></div>
+            </div>
+          </div>
+        </div>
+        <div class="dt-field grid2">
+          <div class="dt-field"><label class="dt-label req" for="${prefix}country">Country</label>
+            <div class="select"><select id="${prefix}country" autocomplete="country">${COUNTRIES.map(([c,n])=>`<option value="${c}" ${c==="US"?"selected":""}>${n}</option>`).join("")}</select></div></div>
+          <div class="dt-field"><label class="dt-label req" for="${prefix}zip">ZIP Code</label><input class="dt-input" id="${prefix}zip" type="text" inputmode="numeric" autocomplete="postal-code"></div>
+        </div>
+      </div>
+      ${withSave ? `
+      <label class="savecard" for="${prefix}save">
+        <input type="checkbox" id="${prefix}save" ${S.saveCard?"checked":""} aria-describedby="${prefix}saveDesc">
+        <span class="switch" aria-hidden="true"></span>
+        <span><span class="t">Save this card for next time</span><span class="d" id="${prefix}saveDesc" data-save-desc="${prefix}">${saveDesc(null)}</span></span>
+      </label>` : ""}`;
+  }
+  function saveDesc(card){
+    const who = card ? `<b>${esc(card.brand)} ····${esc(card.last4)}</b>` : "this card";
+    return `Save ${who} to your ${CLUB.split(" ")[0]} wallet. It's charged only when you choose and confirm a purchase — here, in the app, or at the desk. We'll email you if anything about it changes. Remove it anytime in the app or at the desk. <button class="dt-link" type="button" data-doc="stored">Stored card terms</button>`;
+  }
+
+  function recognized(){
+    const p = S.person;
+    const typedEmail = S.channel==="email";
+    return header(`Welcome back, ${esc(p.first)}`, "Confirm your details and pay") + `
+      <div class="dt-widget-content stack">
+        <div class="dt-alert success" role="status"><span>&#10003;</span><div><b>We found you.</b><div class="body">Your saved card is ready — nothing to re-enter.</div></div></div>
+        <div class="section">
+          <div class="section-title">Your info</div>
+          <div class="kv"><span class="k">Name</span><span class="v">${esc(p.first)} ${esc(p.last)}</span></div>
+          <div class="kv"><span class="k">Email</span><span class="v">${typedEmail ? esc(p.email) : esc(maskEmail(p.email))}</span></div>
+          <div class="kv"><span class="k">Mobile</span><span class="v">${typedEmail ? esc(maskPhone(p.phone)) : esc(fmtPhone(p.phone))}</span></div>
+        </div>
+        <div class="section">
+          <div class="section-title">Payment</div>
+          ${S.useSaved ? `
+            <div class="paysel">
+              <div class="chip"></div>
+              <div class="txt">${esc(p.card.brand)} •••• ${esc(p.card.last4)}<small>${esc(p.card.source)}</small></div>
+              <div class="check">&#10003;</div>
+            </div>
+            <div class="links"><button class="dt-link" type="button" id="diffCard">Use a different card</button></div>
+          ` : `
+            <div class="dt-help" style="padding-left:0;margin:0">Enter a new card. <button class="dt-link" type="button" id="useSaved">Use ${esc(p.card.brand)} •••• ${esc(p.card.last4)} instead</button></div>
+            ${cardForm("r", true)}
+          `}
+        </div>
+      </div>`;
+  }
+
+  function newvisitor(){
+    const second = { label:"Mobile number", ph:"(555) 555-0123" };
+    return header("Welcome — a few details", `${S.channel==="email" ? "Email" : "Mobile"} <b>${esc(contactLabel())}</b> &nbsp;<button class="dt-link" type="button" id="editContact">Edit</button>`) + `
+      <div class="dt-widget-content stack">
+        <div class="grid2">
+          <div class="dt-field"><label class="dt-label" for="first">First name</label><input class="dt-input" id="first" data-autofocus type="text" autocomplete="given-name"></div>
+          <div class="dt-field"><label class="dt-label" for="last">Last name</label><input class="dt-input" id="last" type="text" autocomplete="family-name"></div>
+          <div class="dt-field full"><label class="dt-label req" for="second">${second.label}</label><input class="dt-input" id="second" type="text" inputmode="tel" autocomplete="tel" placeholder="${second.ph}" value="${esc(S.secondContact)}"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">Payment</div>
+          ${cardForm("n", true)}
+        </div>
+        <div class="dt-alert danger" id="formErr" role="alert" hidden style="margin-top:var(--ig-s4)"><span>!</span><div id="formErrText"></div></div>
+      </div>`;
+  }
+
+  function done(){
+    const p = S.person;
+    const card = S.useSaved && p.card && !S.newCard ? p.card : S.newCard;
+    const saved = S.newCard ? S.saveCard : true;
+    const ch = S.channel==="email" ? "emailed" : "texted";
+    return header(`You're in, ${esc(p.first)}`, "Your pass is ready") + `
+      <div class="dt-widget-content stack">
+        <div class="pass" style="margin-top:0">
+          <div>
+            <div class="big">${esc(PRODUCT.label)} · use by ${esc(expiryLabel())}</div>
+            <div class="sm"><b>Check your email</b> — we've sent your QR access code directly to ${esc(contactMasked())}. Show it at the door, or just say your name at the front desk.</div>
+          </div>
+        </div>
+        ${saved
+          ? `<div class="dt-alert success" style="margin-top:var(--ig-s4)"><span>&#10003;</span><div><b>${esc(card.brand)} •••• ${esc(card.last4)} saved to your wallet</b><div class="body">Next time — here, in the app, or at the desk — you'll just verify your email and pay.</div></div></div>`
+          : `<div class="dt-help" style="margin-top:var(--ig-s4);padding-left:0">You chose not to save a card. Next time you'll enter it again.</div>`}
+        <div class="actions">
+          <button class="dt-btn secondary" id="getApp" type="button">Get the Core app</button>
+          <button class="dt-btn" id="again" type="button">Start again</button>
+        </div>
+      </div>`;
+  }
+
+  function renderSide(){
+    const s = $("#summary");
+    const p = S.person;
+    let paying = null;
+    if(S.step==="recognized" && S.useSaved && p) paying = `${p.card.brand} ••${p.card.last4}`;
+    if(S.step==="done"){ const c = (S.useSaved && p.card && !S.newCard) ? p.card : S.newCard; paying = `${c.brand} ••${c.last4}`; }
+    const isDone = S.step==="done";
+    $("#sideTitle").textContent = isDone ? "Receipt" : "Order Summary";
+    $("#sideSub").textContent = isDone ? "Paid — this is your record" : "A breakdown of your order with us";
+
+    if(S.step==="identify"){
+      // Figma Day Pass 1: placeholder skeleton until an order exists
+      s.innerHTML = `
+        <div class="skeleton" aria-hidden="true"><i class="short"></i><i></i><i></i></div>
+        <div class="skeleton" aria-hidden="true"><i class="short"></i><i></i><i></i></div>`;
+      $("#fine").textContent = "";
+    } else {
+      const canPay = S.step!=="done";
+      s.innerHTML = `
+        <div class="srow"><span class="k">${esc(PRODUCT.label)} · ${esc(PRODUCT.name)}</span><span class="v">${money(PRICE)}</span></div>
+        <div class="srow"><span class="k">Valid</span><span class="v">${esc(validityLabel())}</span></div>
+        ${paying ? `<div class="srow"><span class="k">${isDone?"Paid with":"Paying with"}</span><span class="v">${esc(paying)}</span></div>` : ""}
+        <div class="total"><span>${isDone?"Paid":"Total"}</span><span>${money(PRICE)}</span></div>
+        ${canPay ? `
+        <div class="agree">
+          <div class="dt-check">
+            <input type="checkbox" id="adultCb" ${S.adult?"checked":""} aria-required="true">
+            <span class="t"><label for="adultCb"><b>I'm 18 or older.</b> <span class="sub">Under 18? Visit the front desk with a parent or guardian.</span></label></span>
+          </div>
+          <div class="dt-check">
+            <input type="checkbox" id="waiverCb" ${S.waiver?"checked":""} aria-required="true">
+            <span class="t"><label for="waiverCb">I've read and agree to the </label><button class="dt-link" type="button" data-doc="waiver">Liability Waiver</button></span>
+          </div>
+          <div class="dt-check">
+            <input type="checkbox" id="marketingCb" ${S.marketing?"checked":""}>
+            <span class="t"><label for="marketingCb">Yes, send me </label><button class="dt-link" type="button" data-doc="marketing">marketing</button><label for="marketingCb"> offers <span class="sub">(Optional)</span></label></span>
+          </div>
+          <p class="sentence">By tapping <b>Pay ${money(PRICE)} and get my pass</b>, you agree to ${CLUB.split(" ")[0]}'s <button class="dt-link" type="button" data-doc="terms">Pass Terms</button> and acknowledge the <button class="dt-link" type="button" data-doc="privacy">Privacy Notice</button>.</p>
+        </div>
+        <div class="side-actions"><button class="dt-btn" id="sidePay" type="button" ${(S.adult && S.waiver)?"":"disabled"}>Pay ${money(PRICE)} and get my pass</button></div>` : ""}`;
+      const sp = $("#sidePay");
+      if(sp) sp.addEventListener("click", ()=>{ if(payAction) payAction(); });
+      const ad = $("#adultCb");
+      if(ad) ad.addEventListener("change", ()=>{ S.adult = ad.checked; if(S.adult) log(`Age confirmed (18+) — separate affirmative act`, "ok"); renderSide(); });
+      const mk = $("#marketingCb");
+      if(mk) mk.addEventListener("change", ()=>{ S.marketing = mk.checked; log(S.marketing ? `Marketing opt-in <b>checked</b> — optional, not gating; consent text version + timestamp recorded` : `Marketing opt-in unchecked`, S.marketing?"ok":""); });
+      const wv = $("#waiverCb");
+      if(wv) wv.addEventListener("change", ()=>{ S.waiver = wv.checked; if(S.waiver) log(`Liability Waiver accepted — separate affirmative act, kept out of the Pass Terms sentence`, "ok"); renderSide(); });
+      s.querySelectorAll("[data-doc]").forEach(b=>b.addEventListener("click", ()=>openDoc(b.dataset.doc, b)));
+      $("#fine").textContent = isDone
+        ? `Receipt ${S.channel==="email"?"emailed":"texted"} to ${contactMasked()}. Your card stays on file at the club — not on this website.`
+        : `No membership. No recurring billing. Your card stays on file at the club — not on this website.`;
+    }
+    $("#syslog").hidden = !S.showLog;
+  }
+  function renderLog(){
+    const ol = $("#log"); ol.innerHTML = S.log.map(e=>`<li class="${e.kind}">${e.msg}</li>`).join("");
+    $("#logEmpty").hidden = S.log.length>0;
+  }
+
+  function bind(){
+    const m = $("#main");
+
+    const ident = $("#ident", m);
+    if(ident){
+      const go = () => {
+        const raw = ident.value.trim(); S.raw = raw;
+        if(isEmail(raw)){ S.channel="email"; S.key=raw.toLowerCase(); }
+        else { ident.setAttribute("aria-invalid","true"); const h=$("#identHelp",m); h.textContent="Enter a valid email address."; h.hidden=false; ident.focus(); return; }
+        S.person = lookup(); S.codeSent = true; S.otp="";
+        log(`One-time code sent to <b>${contactMasked()}</b>. Every email gets a code — the page reveals nothing about whether the address is known.`, "ok");
+        render();
+      };
+      const cont = $("#continue", m);
+      if(cont){ cont.addEventListener("click", go); ident.addEventListener("keydown", e => { if(e.key==="Enter") go(); }); }
+      const chg = $("#changeContact", m);
+      if(chg) chg.addEventListener("click", ()=>{ S.codeSent=false; S.person=null; S.otp=""; log(`Visitor changed email before verifying — code discarded.`); render(); });
+    }
+
+    const otp = $("#otp", m);
+    if(otp){
+      const inputs = [...otp.querySelectorAll("input")];
+      const btn = $("#verifyBtn", m);
+      const update = () => { S.otp = inputs.map(i=>i.value).join(""); btn.disabled = S.otp.length!==6; };
+      inputs.forEach((inp,i)=>{
+        inp.addEventListener("input", ()=>{ inp.value = digits(inp.value).slice(-1); update(); if(inp.value && inputs[i+1]) inputs[i+1].focus(); });
+        inp.addEventListener("keydown", e=>{
+          if(e.key==="Backspace" && !inp.value && inputs[i-1]) { inputs[i-1].focus(); }
+          if(e.key==="Enter" && !btn.disabled) verifyNow();
+        });
+        inp.addEventListener("paste", e=>{
+          const d = digits((e.clipboardData||window.clipboardData).getData("text")).slice(0,6);
+          if(d.length){ e.preventDefault(); d.split("").forEach((c,j)=>{ if(inputs[j]) inputs[j].value=c; }); update(); (inputs[Math.min(d.length,5)]).focus(); }
+        });
+      });
+      const verifyNow = () => {
+        S.codeSent=false; S.useSaved=true; S.newCard=null;
+        log(`Code verified → email <b>${contactMasked()}</b> proven`, "ok");
+        if(S.person){
+          S.step="recognized";
+          log(`Lookup after verification → <b>match</b> · member ID <b>${S.person.id}</b>`, "ok");
+          log(`Wallet owner resolved <b>by member ID</b> (owner type MEMBER) → 1 entry: ${S.person.card.brand} ••${S.person.card.last4}`, "ok");
+        } else {
+          S.step="newvisitor";
+          log(`Lookup after verification → <b>no match</b>. Continue as first-time visitor.`, "warn");
+        }
+        render();
+      };
+      btn.addEventListener("click", verifyNow);
+      $("#resend", m).addEventListener("click", ()=>{ toast("Code resent"); log(`Code resent via ${S.channel}`); });
+      const sw = $("#switchCh", m);
+      if(sw) sw.addEventListener("click", ()=>{
+        S.channel = S.channel==="email" ? "phone" : "email";
+        S.key = S.channel==="email" ? S.person.email.toLowerCase() : S.person.phone;
+        S.raw = S.channel==="email" ? S.key : fmtPhone(S.key);
+        log(`Visitor switched channel → code sent via <b>${S.channel}</b> (other contact was already on file)`);
+        render(); toast(S.channel==="email" ? "Code emailed" : "Code texted");
+      });
+    }
+
+    m.querySelectorAll("[data-brand-target]").forEach(inp=>{
+      const chip = document.getElementById(inp.dataset.brandTarget);
+      const upd = ()=>{ const d=digits(inp.value); const b=brandOf(inp.value); const hit = d.length && b!=="Card";
+        chip.classList.toggle("detected", !!hit); chip.querySelectorAll(".mark").forEach(mk=>mk.classList.toggle("on", hit && mk.dataset.b===b));
+        const desc = m.querySelector(`[data-save-desc="${inp.id.replace("num","")}"]`); if(desc) desc.innerHTML = saveDesc(d.length>=12 ? { brand:b, last4:d.slice(-4) } : null); };
+      inp.addEventListener("input", ()=>{ inp.value = digits(inp.value).slice(0,19).replace(/(\d{4})(?=\d)/g,"$1 "); upd(); });
+      upd();
+    });
+
+    m.querySelectorAll('input[name="pass"]').forEach(r=>r.addEventListener("change", ()=>{
+      setProduct(r.value); m.querySelectorAll(".offer").forEach(o=>o.classList.toggle("selected", o.htmlFor===`offer-${r.value}`));
+      renderSide(); log(`Pass selected → <b>${PRODUCT.label} ${money(PRICE)}</b>`); toast(`${PRODUCT.label} · ${money(PRICE)}`);
+    }));
+    m.addEventListener("click", e=>{ const b=e.target.closest("[data-doc]"); if(b){ e.preventDefault(); openDoc(b.dataset.doc, b); } });
+    m.querySelectorAll('[id$="save"]').forEach(sw=>sw.addEventListener("change", ()=>{ S.saveCard = sw.checked; toast(S.saveCard ? "Card will be saved — charged only when you confirm a purchase" : "Card won't be saved"); }));
+
+    payAction = null;
+    if(S.step==="recognized"){
+      const diff = $("#diffCard", m); if(diff) diff.addEventListener("click", ()=>{ S.useSaved=false; render(); });
+      const use = $("#useSaved", m); if(use) use.addEventListener("click", ()=>{ S.useSaved=true; render(); });
+      payAction = (()=>{
+        if(!S.adult){ toast("Please confirm you're 18 or older"); $("#adultCb").focus(); return; }
+        if(!S.waiver){ toast("Please agree to the Liability Waiver"); $("#waiverCb").focus(); return; }
+        log(`Pass Terms accepted via Pay tap — conspicuous notice + matched button text "Pay ${money(PRICE)} and get my pass"; Privacy Notice linked at collection`, "ok");
+        if(!S.useSaved){
+          const num = $("#rnum", m).value, exp=$("#rexp", m).value, cvc=$("#rcvc", m).value;
+          if(!$("#rname",m).value.trim()){ toast("Add the cardholder name"); $("#rname",m).focus(); return; }
+          if(digits(num).length<12 || !exp || !cvc){ $("#rgroup",m).setAttribute("aria-invalid","true"); toast("Complete the card information to continue"); $("#rnum", m).focus(); return; }
+          $("#rgroup",m).removeAttribute("aria-invalid");
+          if(!$("#rzip",m).value.trim()){ toast("Add the ZIP code"); $("#rzip",m).focus(); return; }
+          S.saveCard = $("#rsave", m).checked;
+          S.newCard = { brand:brandOf(num), last4:digits(num).slice(-4), source:"Saved online" };
+          log(`Payment authorized ${money(PRICE)} on new ${S.newCard.brand} ••${S.newCard.last4}`, "ok");
+          if(S.saveCard){ S.person.card = S.newCard; log(`New wallet entry added to existing owner <b>${S.person.id}</b> — no second wallet created`, "ok"); }
+        } else {
+          log(`Payment authorized ${money(PRICE)} on stored ${S.person.card.brand} ••${S.person.card.last4} — card never re-entered`, "ok");
+        }
+        log(`${PRODUCT.label} issued — <b>${esc(validityLabel())}</b>, use by ${esc(expiryLabel())} · ${S.channel==="email"?"emailed":"texted"} to ${contactMasked()}`);
+        S.step="done"; render();
+      });
+    }
+
+    if(S.step==="newvisitor"){
+      $("#editContact", m).addEventListener("click", ()=>{ S.step="identify"; render(); });
+      payAction = (()=>{
+        if(!S.adult){ toast("Please confirm you're 18 or older"); $("#adultCb").focus(); return; }
+        if(!S.waiver){ toast("Please agree to the Liability Waiver"); $("#waiverCb").focus(); return; }
+        log(`Pass Terms accepted via Pay tap — conspicuous notice + matched button text "Pay ${money(PRICE)} and get my pass"; Privacy Notice linked at collection`, "ok");
+        const first=$("#first",m).value.trim(), last=$("#last",m).value.trim();
+        const num=$("#nnum",m).value, exp=$("#nexp",m).value, cvc=$("#ncvc",m).value;
+        const second=$("#second",m).value.trim();
+        const err=$("#formErr",m), errText=$("#formErrText",m);
+        let bad=null;
+        if(!first||!last) bad="Please add your first and last name.";
+        else if(!$("#nname",m).value.trim()) bad="Please add the cardholder name.";
+        else if(digits(num).length<12||!exp||!cvc) bad="Please complete the card information.";
+        else if(!$("#nzip",m).value.trim()) bad="Please add the ZIP code.";
+        else if(!second) bad="Please add your mobile number.";
+        else if(!isPhone(second)) bad="That mobile number doesn't look right.";
+        $("#ngroup",m).toggleAttribute("aria-invalid", !!bad && /card information/.test(bad));
+        if(bad){ errText.textContent=bad; err.hidden=false; return; }
+        err.hidden=true;
+        S.saveCard = $("#nsave",m).checked;
+        S.secondContact = second;
+        S.newCard = { brand:brandOf(num), last4:digits(num).slice(-4), source:"Saved online" };
+
+        log(`Payment authorized ${money(PRICE)} on ${S.newCard.brand} ••${S.newCard.last4}`, "ok");
+        const id = "mbr_" + Math.random().toString(16).slice(2,8);
+        const rec = { id, first, last,
+          email: S.channel==="email" ? S.key : (second ? second.toLowerCase() : null),
+          phone: normPhone(second),
+          card: S.saveCard ? S.newCard : null, marketing: S.marketing };
+        log(`Prospect record persisted → member ID <b>${id}</b> (agreement number: none — not PROSP as identity) · marketing consent: <b>${S.marketing?"yes":"no"}</b>`, "ok");
+        if(S.saveCard){
+          club.records.push(rec);
+          log(`<b>Then</b> wallet owner created by member ID → ${S.newCard.brand} ••${S.newCard.last4} saved. Available at desk, app, web.`, "ok");
+          log(`Mobile stored alongside email on the record.`);
+        } else {
+          club.records.push({ ...rec, card:null });
+          log(`Card not saved by choice. Prospect exists; no wallet entry created.`, "warn");
+        }
+        log(`${PRODUCT.label} issued — <b>${esc(validityLabel())}</b>, use by ${esc(expiryLabel())} · ${S.channel==="email"?"emailed":"texted"} to ${contactMasked()}`);
+        S.person = rec; S.useSaved=false; S.step="done"; render();
+      });
+    }
+
+    const again = $("#again", m);
+    if(again){
+      again.addEventListener("click", ()=>{ const keepLog=S.showLog; const hint = S.raw; S=fresh(); S.showLog=keepLog; S.raw=hint; renderLog(); render(); });
+      $("#getApp", m).addEventListener("click", ()=>toast("Same member ID, same wallet — the app would recognize you too"));
+    }
+  }
+
+  let lastFocus = null, openKind = null;
+  function openDoc(kind, opener){
+    const d = DOCS[kind]; if(!d) return; openKind = kind;
+    $("#mTitle").textContent = d.title; $("#mBody").innerHTML = typeof d.body==="function" ? d.body() : d.body; $("#mMeta").textContent = d.meta;
+    $("#mAgree").hidden = !d.agree;
+    lastFocus = opener || document.activeElement;
+    $("#backdrop").hidden = false; $("#mClose").focus();
+    log(`${d.title} opened from checkout (optional — reading is not gated)`);
+  }
+  function closeTerms(){ if($("#backdrop").hidden) return; $("#backdrop").hidden = true; if(lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
+  $("#mClose").addEventListener("click", closeTerms);
+  $("#mCloseBtn").addEventListener("click", closeTerms);
+  $("#mAgree").addEventListener("click", ()=>{ if(openKind==="waiver"){ S.waiver = true; log(`Liability Waiver accepted from within the document`, "ok"); } closeTerms(); renderSide(); const cb=$("#waiverCb"); if(cb) cb.focus(); });
+  $("#backdrop").addEventListener("click", e=>{ if(e.target.id==="backdrop") closeTerms(); });
+  document.addEventListener("keydown", e=>{
+    const bd=$("#backdrop"); if(bd.hidden) return;
+    if(e.key==="Escape"){ e.preventDefault(); closeTerms(); return; }
+    if(e.key==="Tab"){ const f=[...$("#modal").querySelectorAll("button:not([hidden])")]; const first=f[0], last=f[f.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); } }
+  });
+
+  $("#restart").addEventListener("click", ()=>{ const keepLog=S.showLog; S=fresh(); S.showLog=keepLog; renderLog(); render(); });
+  $("#toggleLog").addEventListener("click", e=>{ S.showLog=!S.showLog; e.currentTarget.classList.toggle("on", S.showLog); e.currentTarget.textContent = `Behind the scenes: ${S.showLog?"on":"off"}`; renderSide(); });
+
+  renderLog(); render();
+})();
+</script>
+</body>
+</html>

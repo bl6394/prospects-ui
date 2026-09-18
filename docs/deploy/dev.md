@@ -18,8 +18,8 @@ Dev hosts: `https://onlinejoin.dev.abcfitness.net` (existing; ingress `internal`
 | Where | Change | State |
 |---|---|---|
 | helm-configs `online-join-bff/dev.yaml` (PR #3090) | second host `guestpass.dev.abcfitness.net` on `ingress[0]` hosts + tls (`dev-wildcard`); `STP_STANDALONE_HOSTS=guestpass.dev.abcfitness.net`; `STP_ALLOWED_ORIGINS` both origins; `STP_CATALOG_SOURCE=fixture`; **removed** `STP_PUBLIC_BASE_URL`, `STP_PASS_LINK_SECRET`, `STP_PASS_LINK_GRACE_HOURS`; comment block for Guest Pass and the `guest-pass-online` flag key | PR opened 2026-09-18; **not merged** |
-| BFF | contract v4 build (`prospect-wallet/sprint-0004`): retired pass routes → 404; `STP_STANDALONE_HOSTS`; `STP_CATALOG_SOURCE`; production guard refuses `fixture` and `STP_MOCK_OTP_CODE`; OTP 5 min / 2 sends | PR at E5 |
-| UI | contract v4 build: `/guest-pass` route; router base from `window.guestPass.basename`; flag key `guest_pass_online` | PR at E5 |
+| BFF | contract v4 build (`prospect-wallet/sprint-0004`): retired pass routes → 404; `STP_STANDALONE_HOSTS`; `STP_CATALOG_SOURCE`; production guard refuses `fixture` and `STP_MOCK_OTP_CODE`; OTP 5 min / 2 sends | PR #107 opened 2026-09-18 (not merged) |
+| UI | contract v4 build: `/guest-pass` route; router base from `window.guestPass.basename`; flag key `guest_pass_online` | PR #532 opened 2026-09-18 (not merged) |
 | LaunchDarkly | flag `guest-pass-online` (club kind, default off) in dev and prod replaces the never-created `oj-short-term-pass-checkout`; `STP_LOCAL_FLAG_OVERRIDE=true` stands in until then | PLATFORM ticket (D3) — pending |
 | Secret `platform-online-join-bff` | `STP_DATATRAK_SERVICE_URL`, `STP_DATATRAK_SERVICE_AUTH` when `STP_CATALOG_SOURCE=datatrak` becomes possible (CF-13 / CF-14) | PLATFORM ticket (D3) — pending on the DT PR |
 

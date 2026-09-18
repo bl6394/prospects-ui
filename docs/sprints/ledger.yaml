@@ -23,7 +23,12 @@ sprints:
     status: in-progress
     executor: "Claude Fable 5.1 — Phase A single session (2026-09-18), then parallel BFF and UI subagent lanes coding against contract v4; D/E by the orchestrator"
     created: "2026-09-18T01:39:03+00:00"
-    updated: "2026-09-18T02:00:00+00:00"
+    updated: "2026-09-18T05:30:00+00:00"
+    note: "Phases A–E executed 2026-09-18 by a resumed executor session; PRs opened: online-join-ui #532 (head 3435039, version 8.34.0-daypass.1), online-join-bff #107 (head c6d4136, 1.2.4); helm-configs #3090 open (not merged). E2 71/71 (mock), demo 58/58, E4 blocked. Status stays in-progress until the orchestrator records the Sonar gates and the v4 dev smoke after merge."
+    prs:
+      online-join-ui: "https://github.com/abcfinancial/online-join-ui/pull/532"
+      online-join-bff: "https://github.com/abcfinancial/online-join-bff/pull/107"
+      helm-configs: "https://github.com/abcfinancial2/helm-configs/pull/3090 (open)"
     heads_at_a1:
       online-join-ui: "b6dae7d (origin/main; branch prospect-wallet/sprint-0004; version 8.33.0-daypass.2)"
       online-join-bff: "f5c92ca (origin/main incl. PR #106; branch prospect-wallet/sprint-0004; version 1.2.3)"

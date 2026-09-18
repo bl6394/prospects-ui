@@ -127,3 +127,14 @@ B1 Pay Page credentials are absent locally (hosted capture unverified locally; d
 - The A4 "UI test factories" deliverable landed with the deprecated v3 fields still populated so the v3 components render until C0/C2 replace them; the factory pin test is the only UI suite asserted green at the A exit.
 - `MockIdentityDirectory` implements the full `ProspectPort` v4 already (A4) because the interface change would otherwise break `tsc`; B4 wires the orchestrator to it.
 - The demo script compiles (`scripts/short-term-pass-demo.ts`, one optional-chaining fix) but still exercises the v3 flow; B13 rewrites it.
+
+## Phase C / E notes (resumed executor session, 2026-09-18)
+
+- **State at resume:** prospects-ui docs committed through `3c91fd2`; BFF at `9bad883` with an uncommitted B0 (48 paths) — finished, not reset; UI at `5b6e541` (C0) with 14 suites red by design. Nothing was pushed until E5.
+- **E2 needed four BFF processes** (main, `decline`, `deactivate-failure`, flag off) because the mock fault switch is in-process; the standalone origin had to be allowlisted locally (`STP_ALLOWED_ORIGINS`), which helm #3090 does for dev.
+- **Defects found late:** UI `contractVersion` restart loop (C8, `0c920fa`) and the 375 px Valid-row overflow (E2, `4d5a8e8`) — both fixed; nothing found in the BFF during E2.
+- **E4:** the dev DataTrak service host did not resolve from the executor's network during Phase E (ENOTFOUND); the one permitted boot proved the fail-closed path only. Live read stays blocked (CF-13 / CF-14).
+- **Sonar:** not read — CI still pending on #532 / #107 at the end of the session; the orchestrator closes V6.
+- **D3:** no ticket ids issued (no ticketing tool); handoff text in `SPRINT-0004-EXECUTION-SUMMARY.md`.
+- **Left untouched in this repo's working tree:** modified Sprint 0003 screenshots and other untracked files from earlier sessions (`docs/validation/qa/`, …) — not part of this sprint's deliverables, not committed by the executor.
+

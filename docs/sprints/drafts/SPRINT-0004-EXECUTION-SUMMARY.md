@@ -28,11 +28,11 @@ Executor: Claude Fable 5.1 — Phase A single session, then the BFF and UI lanes
 | E2 local browser smoke | **71 / 71** — nine flows (`docs/validation/short-term-pass-sprint-0004-smoke.md` §local, `screenshots/sprint-0004/`); found and fixed one UI overflow defect |
 | E3 dev smoke | recorded 2026-09-18 against the deployed v3 build with the pinned code (pass for v3; v4 assertions pending the v4 deploy; standalone host pending #3090; hosted capture unverified) |
 | E4 live DataTrak read | blocked; one `STP_CATALOG_SOURCE=datatrak` boot failed closed (404), dev host unresolvable from the executor's network |
-| Sonar gates | first scan **failed on both PRs**: BFF 13 new issues (S5852 slow regexes ×5, S3776, S3516, S7735, S3358 ×2, S4624 ×6, S6582, S4323, S1313), UI 3 (S5852, S7764, S6772) — all fixed behaviour-unchanged in `9b8ed8c` / `c6d4136` (BFF) and `3435039` (UI); Build, Endor Labs and the LaunchDarkly flag diff passed on the first heads; **re-scan result to be read by the orchestrator** (`gh pr checks 532` / `gh pr checks 107`; findings arrive as check-run annotations) before closing V6 |
+| Sonar gates | first scan **failed on both PRs**: BFF 13 new issues (S5852 slow regexes ×5, S3776, S3516, S7735, S3358 ×2, S4624 ×6, S6582, S4323, S1313), UI 3 (S5852, S7764, S6772) — all fixed behaviour-unchanged in `9b8ed8c` / `c6d4136` (BFF) and `3435039` (UI); Build, Endor Labs and the LaunchDarkly flag diff passed on the first heads; **re-scan passed on both PRs** (UI head `3435039`, BFF head `c6d4136`: SonarQube Code Analysis pass, CI / Build pass, bump job idle) |
 
 ## Gates V0–V8
 
-V0 passed · V1 passed (mock) · V2 passed with approved deltas (DESIGN observer not consulted) · V3 passed (mock; PK observer not consulted) · V4 passed · V5 passed (mock; LEGAL observer not consulted) · V6 passed except Sonar (first scan failed, findings fixed, re-scan to be read) · V7 each item its own verdict (routing local-proven; helm pending; E3 v3 pass / v4 pending; LD flag pending; adapter pinned; live read blocked) · V8 passed. Detail: `docs/validation/short-term-pass-sprint-0004-traceability.md` §Use cases → gates.
+V0 passed · V1 passed (mock) · V2 passed with approved deltas (DESIGN observer not consulted) · V3 passed (mock; PK observer not consulted) · V4 passed · V5 passed (mock; LEGAL observer not consulted) · V6 passed (Sonar gates green on both PRs after the fixes) · V7 each item its own verdict (routing local-proven; helm pending; E3 v3 pass / v4 pending; LD flag pending; adapter pinned; live read blocked) · V8 passed. Detail: `docs/validation/short-term-pass-sprint-0004-traceability.md` §Use cases → gates.
 
 ## Defects found during proof (both fixed in the UI PR)
 
@@ -50,7 +50,7 @@ V0 passed · V1 passed (mock) · V2 passed with approved deltas (DESIGN observer
 
 ## How to resume
 
-1. Read the Sonar re-scan on #532 and #107 (the first scan's findings were fixed and pushed); if anything remains, pull first — the bump job pushes version commits to the branch.
+1. Sonar and CI are green on #532 / #107; Cursor Bugbot skipped. Pull before touching the branches — the bump job pushes version commits.
 2. Merge order does not matter (v1.2.3 ignores the new keys; v4 ignores the old ones). After the BFF merge and the dev deploy: re-run E3 for v4 (five documents, `contractVersion`, `useBy`, `pass.beginDate`, no `viewPath`, `guest_pass_online` hint), and — after #3090 deploys — the standalone host (`docs/deploy/dev.md` §D2) with a hosted-card checkout.
 3. Close SPRINT-0004 in `docs/sprints/ledger.yaml` only then; keep the four verdicts separate.
 4. Baseline failures stay listed by name; never lower a floor.

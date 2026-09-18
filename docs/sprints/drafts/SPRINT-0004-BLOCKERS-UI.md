@@ -8,5 +8,5 @@ None blocked the lane. Recorded:
 - **Defect found by E2:** `.srow .v { white-space: nowrap }` overflowed the 375 px viewport with the v6 Valid sentence — fixed (`4d5a8e8`) and pinned in `layout.test.ts`.
 - **Design HTML v6 carries "18 or older"** — the copy table's design-source check does not assert its absence; the UI static scan does.
 - **Hosted Pay Page embed** unverified locally (B1); the fixture panel stands in. No hosted-card checkout was run on the standalone host (saved card was).
-- **Sonar** — the first scan on PR #532 failed with 3 new issues; fixed in `3435039`; the re-scan is read by the orchestrator.
+- **Sonar** — the first scan on PR #532 failed with 3 new issues; fixed in `3435039`; the re-scan passed.
 - **CI version bump** finalised `8.33.0-daypass.2` to `8.33.0` (`80495fb`); `e62a67c` restored the line as `8.34.0-daypass.1`, the precedent being #525's `da25d3a`.

@@ -7,4 +7,4 @@ None blocked the lane. Recorded:
 - **Fault switch is in-process** — no browser API can flip it (by design); the E2 smoke ran one BFF process per fault. A successful compensation after recovery is proven at HTTP level (Demo 6), not in the browser.
 - **Two-sends-per-hour cap (D59)** broke suites that identified one address three times — fixed by `challenges.resetLimits()` in the harness / `beforeEach`; the purchase limiter (10 / IP / hour) likewise needed `resetLimits` per demo and per browser flow.
 - **Circular import** `config.ts → verificationCode.ts → challenge.ts → config.ts` when the OTP template loader moved to boot — split into `adapters/smtp/templates/otpTemplate.ts`.
-- **Sonar** — the first scan on PR #107 failed with 13 new issues despite the conventions applied while coding; all fixed in `9b8ed8c` / `c6d4136` (see the lane summary); the re-scan is read by the orchestrator.
+- **Sonar** — the first scan on PR #107 failed with 13 new issues despite the conventions applied while coding; all fixed in `9b8ed8c` / `c6d4136` (see the lane summary); the re-scan passed.

@@ -99,7 +99,15 @@ Handoff text (PLATFORM / Chancy / PK — CF-24): create both keys in the LaunchD
 
 | # | Blocked | Why | Tried | Effect |
 |---|---|---|---|---|
-| BL-1 | Gradle in both DataTrak repos | `artifactory.abc30ops.com` unreachable without VPN | both baselines, `--continue`, cache inspection (4.1.0 jar only) | no local compile or test; CI on the draft PRs is the proof; A2 proven with a standalone `javac` run |
+| BL-1 | Gradle in both DataTrak repos | `artifactory.abc30ops.com` unreachable without VPN | both baselines, `--continue`, cache inspection (4.1.0 jar only); standalone `javac` + TestNG for every self-contained class | no local compile or test; **CI was the compile and proved both branches** — #591 run 1 compiled clean with 0 pre-existing failures (5 new-test failures fixed), run 4 all green; #6800 run 1 compiled clean with 0 pre-existing failures (7 new-test failures fixed), run 3 1615 / 0 / 0. Still open: a VPN re-run of both local baselines to name pre-existing local failures (none seen in CI) |
 | BL-2 | D7 dev switch-over | preconditions unmet by design: DT dev flags not on, secret keys not set (PLATFORM), PRs unmerged | — | pending with the named precondition; no helm PR |
 | BL-3 | Before/after M&O screenshots (C4) | no DataTrak M&O runtime here | — | pending for Chancy / QA on the PR |
-| BL-4 | datatrak-service off-body goldens from `main` | no DB; the only `main` body is the 2026-09-18 scrubbed dev recording | — | goldens are built from the fixed inputs in the test (same converters), not from a live capture |
+| BL-4 | datatrak-service off-body goldens from `main` | no DB; the only `main` body is the 2026-09-18 scrubbed dev recording | — | goldens are built from the fixed inputs in the test (same converters), not from a live capture; the dev diff against the recording is runbook step R2 |
+| BL-5 | datatrak Sonar new-code gate on PR #6800 | the `datatrak` repo runs `sonarqube` inside the `CI / Build` job and exposes no separate gate check; the Sonar server needs a token | check-run and commit-status listing on the head | V6's datatrak half reads "Build green, Sonar gate unobserved" — PK / Chancy see the gate in Sonar |
+| BL-6 | Chancy's acknowledgement of a PR onto his branch (CF-19) | not asked in a channel this run (no ticketing / chat tool) | PK's direct commits to the branch noted as a signal | PR #6800 is an open draft with the review map; if declined, the body is the written change request |
+
+## Findings for the repo owners (not fixed here, outside the sprint's files)
+
+- **datatrak-service `ClubExternalControllerTest`** uses `@InjectMocks` on a `final`-field controller with `openMocks` in `@BeforeMethod` under TestNG's single test instance — the same stale-mock pattern that failed five new tests in #591 run 1; it is not in the include list, so it never runs under Gradle (DTS lane).
+- **datatrak `PointOfSaleState`** (both packages) cannot be a Mockito mock: the inline retransform fails, and a per-mock subclass mock maker breaks every mock in the test JVM (230 failures on #6800 run 2). The audit tests build a stub subclass via objenesis inside a stubbed `StaticSpringApplicationContext` (`EnvironmentProperties` is read by the sales3 class initialiser); future tests should copy that pattern (DTM lane).
+- **PK's gating** had three small defects, fixed in #6800 C1: whitespace-only club number reached LaunchDarkly (`StringSupport.safeEmpty` does not trim); duplicate import in `ProspectServiceTransactionsImpl`; no local yml row for `MO_guest_day_pass_DT-21555`.

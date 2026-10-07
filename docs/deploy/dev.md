@@ -74,7 +74,7 @@ BFF: dispatch **Deploy Container: ENV** on the previous tag (`v1.2.3` is the cur
 ## Open items
 
 - LaunchDarkly flag `guest-pass-online` does not exist; the override stands in and must be removed when it lands (CF-17, D3).
-- `STP_CATALOG_SOURCE=fixture` in dev until the DataTrak service layer exposes the guest-pass fields (CF-13) and a member-less query (CF-14); then `datatrak` + the credential secret.
+- `STP_CATALOG_SOURCE=fixture` in dev until the DataTrak service layer exposes the guest-pass fields (CF-13) and a member-less query (CF-14); then `datatrak` + the credential secret. **Sprint 0005 (2026-10-07):** the code is prepared (datatrak-service draft PR adds `prospectLiability` / `timezone` and the club-scoped `guestPassItems.spr` behind `datatrak-service-DT-21555-guest-pass-fields`; the gating PR onto #6643 guards the M&O side behind `MO_guest_day_pass_DT-21555`); the dev switch-over (helm `STP_CATALOG_SOURCE=datatrak`, signed PR) is **pending** step R5 of `docs/deploy/guest-pass-db-and-flags.md` — preconditions: both DT PRs merged and deployed (R2), scripts run in dev (R1), both DT flags on for the test club (R3/R4), `STP_DATATRAK_SERVICE_URL` / `STP_DATATRAK_SERVICE_AUTH` in `platform-online-join-bff` (PLATFORM). No helm PR is opened before that.
 - Dev email transport is `mock`; the pinned code replaces reading the outbox. The publisher path (`STP_EMAIL_TRANSPORT=publisher`) returned 503 in Sprint 0002 and is unverified.
 - Dev values file carries secrets in plain text (pre-existing; not changed by this sprint) — PLATFORM housekeeping row.
 - In-memory checkout / purchase / rate-limit / compensation stores: one replica in dev is fine; a shared store is a pilot gate (V-P1d).

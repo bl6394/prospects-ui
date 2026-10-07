@@ -10,6 +10,7 @@ Tools like `rg`, `find`, `grep`, and `wc` operate on it directly.
 **Local path**: two roots, both already materialized
 - `/Users/bjornloftis/claudeprojects/prospects-ui/repos/` — `mico/`, `online-join-ui/`, `online-join-bff/` (gitignored in this repo; cloned 2026-09-09)
 - `/Users/bjornloftis/claudeprojects/wallet-repos/` — wallet services and platform infra (cloned 2026-09-08)
+- `/Users/bjornloftis/claudeprojects/prospects-ui/repos/` — also `datatrak/`, `datatrak-service/`, `orasvc/`, `helm-configs/` (shallow clones added 2026-10-07 for Sprint 0005; `datatrak` carries the local branch `feat/NOJIRA-guest-pass-email` = PR #6643; `datatrak-service` is the image behind `datatrak-service.{dev,prod}.abcfitness.net`, i.e. the `/external/*.spr` layer MICO and the Guest Pass BFF read)
 **Sync command**:
 ```
 for d in /Users/bjornloftis/claudeprojects/prospects-ui/repos/* /Users/bjornloftis/claudeprojects/wallet-repos/*; do [ -d "$d/.git" ] && git -C "$d" pull --ff-only; done

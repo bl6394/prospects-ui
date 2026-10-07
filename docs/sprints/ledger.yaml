@@ -11,7 +11,6 @@ sprints:
     executor: "Claude Fable 5.1 — Phase A single session, then parallel BFF and UI lanes (user decision 2026-09-10 19:05 UTC); harness lane deferred by the user"
     created: "2026-09-10T18:38:20+00:00"
     updated: "2026-09-18T02:00:00+00:00"
-    note: "Closed by Sprint 0004 A1 (2026-09-18): phases D/E1/E2 deferred by the user 2026-09-10; S2/S7 not run; S5 pending B1 (hosted Pay Page capture). No gate marked passed by this closure."
   - id: SPRINT-0003
     title: "Design v4 — selectable 1/3/5-day passes, the QR and receipt delivered by email, and a login-free \"View your pass\" page"
     status: done
@@ -21,37 +20,11 @@ sprints:
   - id: SPRINT-0004
     title: Guest Pass v1 — catalog-flagged single-visit passes from DataTrak, begin-on-purchase validity, DT-rendered QR by email, legal opt-in, create → pay → deactivate, and a standalone Guest Pass host
     status: done
-    executor: "Claude Fable 5.1 — Phase A single session (2026-09-18), then parallel BFF and UI subagent lanes coding against contract v4; D/E by the orchestrator"
+    executor: "Claude Fable 5.1 via df-sprint-execute (claude) — two sessions 2026-09-18 01:47Z–02:48Z (killed by the 10-min print-mode background-wait ceiling mid-lanes) and 02:51Z–04:57Z (resumed with CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0)"
     created: "2026-09-18T01:39:03+00:00"
     updated: "2026-09-18T05:00:29+00:00"
-    note: "Phases A–E executed 2026-09-18 by a resumed executor session; PRs opened: online-join-ui #532 (head 3435039, version 8.34.0-daypass.1), online-join-bff #107 (head c6d4136, 1.2.4); helm-configs #3090 open (not merged). E2 71/71 (mock), demo 58/58, E4 blocked; Sonar + CI green on both PRs. Status stays in-progress until the orchestrator records the Sonar gates and the v4 dev smoke after merge."
-    prs:
-      online-join-ui: "https://github.com/abcfinancial/online-join-ui/pull/532"
-      online-join-bff: "https://github.com/abcfinancial/online-join-bff/pull/107"
-      helm-configs: "https://github.com/abcfinancial2/helm-configs/pull/3090 (open)"
-    heads_at_a1:
-      online-join-ui: "b6dae7d (origin/main; branch prospect-wallet/sprint-0004; version 8.33.0-daypass.2)"
-      online-join-bff: "f5c92ca (origin/main incl. PR #106; branch prospect-wallet/sprint-0004; version 1.2.3)"
-    baseline_failures: ["online-join-ui __tests__/helpers/transformers.test.ts (date-dependent, pre-existing)", "online-join-ui __tests__/routes/ReviewPage/OfferDetails/OfferDetails.test.tsx (intermittent, pre-existing)"]
-    execution:
-      executor: "Claude Fable 5.1 via df-sprint-execute (claude) — two sessions 2026-09-18 01:47Z–02:48Z (killed by the 10-min print-mode background-wait ceiling mid-lanes) and 02:51Z–04:57Z (resumed with CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0)"
-      branches:
-        online-join-ui: prospect-wallet/sprint-0004
-        online-join-bff: prospect-wallet/sprint-0004
-        helm-configs: online-join-bff/guest-pass-standalone-dev
-      pull_requests:
-        online-join-ui: https://github.com/abcfinancial/online-join-ui/pull/532
-        online-join-bff: https://github.com/abcfinancial/online-join-bff/pull/107
-        helm-configs: https://github.com/abcfinancial2/helm-configs/pull/3090
-      heads: { online-join-ui: 3435039 (8.34.0-daypass.1), online-join-bff: c6d4136 (1.2.4) }
-      quality:
-        online-join-bff: "jest 68/68 suites, 698 passed, 2 skipped; coverage 97.42/85.98/97.13/98.26 (floors 84/67/67/84); eslint + tsc clean; Sonar gate passed after 13 findings fixed"
-        online-join-ui: "jest 111/112 suites, 776/777 (transformers.test.ts date-dependent baseline); coverage 95.75 lines (floor 80/80); lint 0; build ok; Sonar gate passed after 3 findings fixed"
-      proof: "demo 0–6 58/58; E2 local browser smoke 71/71 (one overflow defect found and fixed); E3 dev smoke recorded against the deployed v3 build only (v4 assertions pending deploy); E4 live DataTrak read blocked (CF-13/14)"
-      verdicts:
-        implementation_mock: done
-        standalone_dev_host: "pending helm #3090 merge + deploy; local proof on guestpass.localhost"
-        live_integration: "blocked/mock only — DT catalog read blocked (CF-13/14), prospect ports notEnabled (CF-15), hosted capture unverified (B1)"
-        pilot: "not eligible until V-P0…V-P6 (docs/validation/guest-pass-pilot-gates.md)"
-      summary: docs/sprints/drafts/SPRINT-0004-EXECUTION-SUMMARY.md
-
+  - id: SPRINT-0005
+    title: G1 — the guest-pass fields through the DataTrak service layer, with every production DB dependency behind a feature flag
+    status: planned
+    created: "2026-10-07T18:44:20+00:00"
+    updated: "2026-10-07T18:44:20+00:00"

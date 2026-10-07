@@ -25,6 +25,23 @@ sprints:
     updated: "2026-09-18T05:00:29+00:00"
   - id: SPRINT-0005
     title: G1 — the guest-pass fields through the DataTrak service layer, with every production DB dependency behind a feature flag
-    status: planned
+    status: in-progress
+    executor: "Claude Fable 5.1 — Phase A single session 2026-10-07, then DTS / DTM / BFF lanes as parallel subagents; Phase E by the orchestrator"
     created: "2026-10-07T18:44:20+00:00"
-    updated: "2026-10-07T18:44:20+00:00"
+    updated: "2026-10-07T19:04:55+00:00"
+    heads_at_a1:
+      online-join-bff: "5e370a0 (origin/main; PR #107 merged 18ab2d4)"
+      online-join-ui: "3967c43 (origin/main; PR #532 merged)"
+      datatrak-service: "d280934 (origin/main)"
+      datatrak: "77f1271 (origin/feat/NOJIRA-guest-pass-email — PK's four gating commits of 2026-10-07; main 0917d08)"
+      helm-configs: "efc689c8 (origin/master; PR #3090 merged)"
+      mico: "5dad4d66 (read-only)"
+    branches:
+      online-join-bff: prospect-wallet/sprint-0005
+      online-join-ui: none (D5/D6 proof only)
+      datatrak-service: DT-21555-guest-pass-service-fields
+      datatrak: DT-21555-guest-pass-flag-gating (off feat/NOJIRA-guest-pass-email; PR onto that branch)
+    baselines:
+      datatrak-service: "blocked — Artifactory unreachable without VPN; compileJava could not resolve; CI on the draft PR is the proof (SPRINT-0005-BLOCKERS.md BL-1)"
+      datatrak: "blocked locally (same); PR #6643 CI / Build pass on 77f1271 is the baseline proxy"
+      a2_spike: "pass 7/7 standalone (javac + TestNG, cached jars; version proxies recorded) → local DTO pair, no jar bump"

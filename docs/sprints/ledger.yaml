@@ -25,10 +25,11 @@ sprints:
     updated: "2026-09-18T05:00:29+00:00"
   - id: SPRINT-0005
     title: G1 — the guest-pass fields through the DataTrak service layer, with every production DB dependency behind a feature flag
-    status: in-progress
+    status: done
     executor: "Claude Fable 5.1 — Phase A single session 2026-10-07, then DTS / DTM / BFF lanes as parallel subagents; Phase E by the orchestrator"
     created: "2026-10-07T18:44:20+00:00"
-    updated: "2026-10-07T19:04:55+00:00"
+    updated: "2026-10-07T20:24:13+00:00"
+    completed: "2026-10-07T20:24:13+00:00"
     heads_at_a1:
       online-join-bff: "5e370a0 (origin/main; PR #107 merged 18ab2d4)"
       online-join-ui: "3967c43 (origin/main; PR #532 merged)"

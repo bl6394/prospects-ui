@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Guest Pass Email Database Handoff</title>
+  <style>
+    body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #222; margin: 1in; }
+    h1 { font-size: 20pt; color: #003366; border-bottom: 2px solid #003366; padding-bottom: 6px; }
+    h2 { font-size: 14pt; color: #003366; margin-top: 22px; }
+    h3 { font-size: 12pt; color: #333; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0 16px 0; }
+    th, td { border: 1px solid #666; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #003366; color: #fff; }
+    code, pre { font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; }
+    pre { background: #f4f4f4; border: 1px solid #ccc; padding: 10px; white-space: pre-wrap; }
+    ol, ul { margin-top: 6px; }
+    .meta { color: #555; margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+  <h1>Guest Pass Email Database Handoff</h1>
+  <p class="meta">Datatrak &nbsp;|&nbsp; 10 September 2026 &nbsp;|&nbsp; No new tables required</p>
+
+  <h2>Summary</h2>
+  <p>This feature adds guest-pass configuration to product catalog items, adds club-configurable prospect liability language, and introduces the <code>Add Guest</code> email type. No new database tables are required.</p>
+  <p>The repository contains three deployment scripts. Run them in the order shown below:</p>
+  <ol>
+    <li><code>sql/project-prospect-liability-language.sql</code></li>
+    <li><code>sql/project-guest-pass-catalog-item.sql</code></li>
+    <li><code>sql/project-add-guest-email-type.sql</code></li>
+  </ol>
+  <p>Oracle DDL commits implicitly. Apply these scripts through the database team's normal controlled deployment process and take the usual backup or restore-point precautions before execution.</p>
+
+  <h2>New columns</h2>
+
+  <h3>SPL_EXTENSIONS</h3>
+  <table>
+    <tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>Purpose</th></tr>
+    <tr><td><code>SPLEX_PROSPECT_LIABILITY</code></td><td><code>VARCHAR2(4000)</code></td><td>Yes</td><td>None</td><td>Club-editable liability language included in the Add Guest email.</td></tr>
+  </table>
+
+  <h3>CATALOGITEMS</h3>
+  <table>
+    <tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>Initial value</th><th>Purpose</th></tr>
+    <tr><td><code>CGI_GUEST_PASS</code></td><td><code>CHAR(1)</code></td><td>Yes</td><td><code>'0'</code></td><td><code>'0'</code></td><td>Identifies a product catalog item as a guest-pass item.</td></tr>
+    <tr><td><code>CGI_GUEST_PASS_VISITS</code></td><td><code>NUMBER(3,0)</code></td><td>Yes</td><td><code>0</code></td><td><code>0</code></td><td>Number of visits associated with the guest-pass product.</td></tr>
+    <tr><td><code>CGI_GUEST_PASS_CONTRACT_DAYS</code></td><td><code>NUMBER(3,0)</code></td><td>Yes</td><td><code>0</code></td><td><code>0</code></td><td>Contract duration associated with the guest-pass product.</td></tr>
+  </table>
+  <p><code>CGI_GUEST_PASS</code> uses the existing Datatrak boolean convention: <code>'1'</code> is true and <code>'0'</code> is false. Visits and contract days are limited by the application to values from 1 through 100 when the item is marked as a guest pass.</p>
+
+  <h3>SALEITEMS</h3>
+  <table>
+    <tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>Initial value</th><th>Purpose</th></tr>
+    <tr><td><code>SAI_GUEST_PASS</code></td><td><code>CHAR(1)</code></td><td>Yes</td><td><code>'0'</code></td><td><code>'0'</code></td><td>Deployed club-item copy of the guest-pass indicator.</td></tr>
+    <tr><td><code>SAI_GUEST_PASS_VISITS</code></td><td><code>NUMBER(3,0)</code></td><td>Yes</td><td><code>0</code></td><td><code>0</code></td><td>Deployed club-item copy of allowed visits.</td></tr>
+    <tr><td><code>SAI_GUEST_PASS_CONTRACT_DAYS</code></td><td><code>NUMBER(3,0)</code></td><td>Yes</td><td><code>0</code></td><td><code>0</code></td><td>Deployed club-item copy of contract days.</td></tr>
+  </table>
+  <p>The application synchronizes these three values from <code>CATALOGITEMS</code> whenever a catalog item is deployed or its deployed sale item is refreshed. Completed POS sales use <code>SAI_GUEST_PASS = '1'</code> to decide whether to send the Add Guest email.</p>
+
+  <h2>New email-template data</h2>
+  <p>No columns are added for the email type. The script <code>sql/project-add-guest-email-type.sql</code> creates configuration data in the existing email tables.</p>
+
+  <h3>CONTACTTEMPLATE</h3>
+  <ul>
+    <li>ABC code: <code>ADD_GUEST</code></li>
+    <li>Name: <code>Add Guest</code></li>
+    <li>Default subject: <code>Your Club Pass</code></li>
+    <li>Active: <code>'1'</code></li>
+    <li>Billing code: <code>030</code></li>
+    <li>Template ID: <code>7E2E04A6D4B74A56833F90EEC929A1B2</code></li>
+    <li>Channel, preheader, sender, processing rules, and base template are copied from the existing <code>ADD_PROSPECT</code> template.</li>
+  </ul>
+  <p>The billing code must remain unique under <code>CTEM_UNIQUE_BILLING</code>. Confirm that <code>030</code> is available in each target environment before deployment. If it is already assigned, coordinate a different unused code and update the script before execution.</p>
+
+  <h3>CONTACTTEMPLATELOCATION</h3>
+  <p>One Add Guest location row is created for every location that currently has an <code>ADD_PROSPECT</code> location row. Each new row:</p>
+  <ul>
+    <li>receives a new <code>SYS_GUID()</code> identifier;</li>
+    <li>retains the source location's active state, header, footer, and preheader;</li>
+    <li>defaults its subject to <code>Your Club Pass</code>; and</li>
+    <li>remains editable through the existing Email Types settings UI.</li>
+  </ul>
+  <p>The <code>CONTACTTEMPLATE</code> insertion is guarded by a <code>MERGE</code>, and location rows are guarded by <code>NOT EXISTS</code>, so the email-data script can be rerun safely.</p>
+
+  <h2>Deployment verification</h2>
+  <p>Run these checks after applying all scripts.</p>
+  <pre>SELECT column_name, data_type, data_length, data_precision, data_scale,
+       nullable, data_default
+FROM user_tab_columns
+WHERE table_name IN (
+    'SPL_EXTENSIONS',
+    'CATALOGITEMS',
+    'SALEITEMS'
+)
+AND column_name IN (
+    'SPLEX_PROSPECT_LIABILITY',
+    'CGI_GUEST_PASS',
+    'CGI_GUEST_PASS_VISITS',
+    'CGI_GUEST_PASS_CONTRACT_DAYS',
+    'SAI_GUEST_PASS',
+    'SAI_GUEST_PASS_VISITS',
+    'SAI_GUEST_PASS_CONTRACT_DAYS'
+)
+ORDER BY table_name, column_id;</pre>
+  <p>Expected result: seven rows.</p>
+  <pre>SELECT ctem_id, ctem_name, ctem_abc_code, ctem_active,
+       ctem_subject, ctem_billing_code
+FROM contactTemplate
+WHERE ctem_abc_code = 'ADD_GUEST';</pre>
+  <p>Expected result: one active <code>ADD_GUEST</code> row with subject <code>Your Club Pass</code>.</p>
+  <pre>SELECT COUNT(*) AS add_guest_location_count
+FROM contactTemplateLocation location
+JOIN contactTemplate template
+  ON template.ctem_id = location.ctem_id
+WHERE template.ctem_abc_code = 'ADD_GUEST';</pre>
+  <p>Expected result: one row per location configured for <code>ADD_PROSPECT</code>.</p>
+  <pre>SELECT COUNT(*) AS unexpected_catalog_values
+FROM catalogItems
+WHERE NVL(cgi_guest_pass, '0') NOT IN ('0', '1')
+   OR NVL(cgi_guest_pass_visits, 0) NOT BETWEEN 0 AND 100
+   OR NVL(cgi_guest_pass_contract_days, 0) NOT BETWEEN 0 AND 100;</pre>
+  <p>Expected result: <code>0</code>.</p>
+
+  <h2>Rollback</h2>
+  <p>Coordinate rollback with the application deployment because code using these columns cannot run after the columns are removed.</p>
+  <pre>DELETE FROM contactTemplateLocation
+WHERE ctem_id = (
+    SELECT ctem_id
+    FROM contactTemplate
+    WHERE ctem_abc_code = 'ADD_GUEST'
+);
+
+DELETE FROM contactTemplate
+WHERE ctem_abc_code = 'ADD_GUEST';
+
+ALTER TABLE saleItems DROP COLUMN SAI_GUEST_PASS_CONTRACT_DAYS;
+ALTER TABLE saleItems DROP COLUMN SAI_GUEST_PASS_VISITS;
+ALTER TABLE saleItems DROP COLUMN SAI_GUEST_PASS;
+
+ALTER TABLE catalogItems DROP COLUMN CGI_GUEST_PASS_CONTRACT_DAYS;
+ALTER TABLE catalogItems DROP COLUMN CGI_GUEST_PASS_VISITS;
+ALTER TABLE catalogItems DROP COLUMN CGI_GUEST_PASS;
+
+ALTER TABLE spl_extensions DROP COLUMN SPLEX_PROSPECT_LIABILITY;</pre>
+  <p>Commit the two deletes before running the DDL if the deployment tooling does not manage transaction boundaries automatically.</p>
+</body>
+</html>

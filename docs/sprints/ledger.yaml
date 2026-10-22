@@ -28,7 +28,7 @@ sprints:
     status: done
     executor: "Claude Fable 5.1 — Phase A single session 2026-10-07, then DTS / DTM / BFF lanes as parallel subagents; Phase E by the orchestrator"
     created: "2026-10-07T18:44:20+00:00"
-    updated: "2026-10-07T20:24:13+00:00"
+    updated: "2026-10-22T09:09:48+00:00"
     completed: "2026-10-07T20:24:13+00:00"
     heads_at_a1:
       online-join-bff: "5e370a0 (origin/main; PR #107 merged 18ab2d4)"
@@ -47,9 +47,10 @@ sprints:
       datatrak: "blocked locally (same); PR #6643 CI / Build pass on 77f1271 is the baseline proxy; PR #6800 run 1: 0 pre-existing failures"
       a2_spike: "pass 7/7 standalone (javac + TestNG, cached jars; version proxies recorded) → local DTO pair, no jar bump; 14/14 incl. goldens in CI"
     pull_requests:
-      online-join-bff: "https://github.com/abcfinancial/online-join-bff/pull/112 — open (not draft), base main, head b22febc, version 1.3.0; CI / Build, Endor, LD flag diff, SonarQube all pass (one S3776 fix); not merged, no reviewers requested"
-      datatrak-service: "https://github.com/abcfinancial/datatrak-service/pull/591 — DRAFT, base main, head 2a5d599; CI / Build, Endor, SonarQube pass on run 4 (run 1: 5 stale-mock test failures fixed; runs 2–3: 13 Sonar new-code findings cleared behaviour-unchanged); not merged"
-      datatrak: "https://github.com/abcfinancial/datatrak/pull/6800 — DRAFT onto feat/NOJIRA-guest-pass-email (Chancy's #6643 branch, never rewritten), head 1c5755b2; CI / Build pass on run 3 (1615 / 0 / 0; run 2 withdrawn — mock-maker regression); Sonar gate not surfaced as a check (unobserved); not merged; CF-19 acknowledgement open"
+      online-join-bff: "https://github.com/abcfinancial/online-join-bff/pull/112 — open (not draft), base main, head 54083ba (rebased 2026-10-22 onto main 83815da and force-pushed; was b22febc), version 1.3.0; CI / Build, Endor, LD flag diff, SonarQube all pass on 54083ba; mergeStateStatus BLOCKED on review — rlankit, deepthi-rachumallu, djaynarayan, paulobrien109 requested, none reviewed; not merged"
+      datatrak-service: "https://github.com/abcfinancial/datatrak-service/pull/591 — DRAFT, base main, head 25e94b6 (rebased 2026-10-22 onto main 2bceef1 and force-pushed; was 2a5d599); CI / Build, Endor, SonarQube pass on 25e94b6; no reviewers requested; not merged"
+      datatrak: "https://github.com/abcfinancial/datatrak/pull/6800 — MERGED 2026-10-20 (mithrandr) into feat/NOJIRA-guest-pass-email, head d3912c5 at merge; merge commit b4e1b9c is an ancestor of datatrak main; CI / Build pass (1615 / 0 / 0 on run 3); Sonar gate unobserved; CF-19 acknowledgement open"
+      datatrak-6643: "https://github.com/abcfinancial/datatrak/pull/6643 — MERGED 2026-10-20 into datatrak main (Chancy's M&O changes; the base of #6800's branch); the MO_guest_day_pass_DT-21555 gating is on main"
       helm-configs: "none — D7 pending (BL-2)"
     quality:
       bff: "jest 69/69 suites, 706 passed, 2 skipped; coverage 97.47/86.5/97.19/98.28 (floors 84/67/67/84); lint, tsc, build clean; demo 58/58; Sonar green"
@@ -63,8 +64,11 @@ sprints:
       contract: docs/contracts/short-term-pass-bff.md (v4.1 §8, §8a(e), §10)
       gates: "V0 passed · V1 passed (CI) · V2 passed (CI) · V3 passed · V4 passed (CI; CF-19 open; screenshots pending) · V5 passed (mock) · V6 passed DS / DT Build, DT Sonar gate unobserved · V7 passed with §live pending"
     verdicts:
-      implementation_and_mock_acceptance: "done — DS draft PR #591 green with off goldens and on tests; DT gating audit PR #6800 Build green with the review map; BFF matrix pinned on fixtures (#112 green); the DT PRs are open drafts, not merged"
+      implementation_and_mock_acceptance: "done — DS draft PR #591 green on 25e94b6 with off goldens and on tests (datatrak-service Gradle :dtWar:test 663 tests, 0 failures, local, 2026-10-22); DT gating audit #6800 and Chancy's #6643 merged 2026-10-20; BFF matrix pinned on fixtures, #112 green on 54083ba and blocked on review"
       standalone_dev_host: "carried from Sprint 0004 — not re-verified"
       live_integration: "pending — DataTrak catalog read: PRs unmerged, scripts not run, both DT flags not created / off, STP_DATATRAK_SERVICE_URL/AUTH missing (runbook R0–R5); prospect create/repaint/deactivate mock only (CF-15); hosted capture carried (B1); QR, Add Guest email and access enforcement are DataTrak's and unverified from this build"
       pilot: "not eligible — V-P0…V-P6 pending/blocked; V-P1a rewritten as runbook rows R0–R7"
+    post_execution:
+      "2026-10-20": "datatrak #6643 (Chancy's M&O changes) and #6800 (the gating audit) merged; #6800 landed on feat/NOJIRA-guest-pass-email, which is an ancestor of datatrak main"
+      "2026-10-22": "rebased and force-pushed with lease: online-join-bff prospect-wallet/sprint-0005 b22febc → 54083ba (onto main 83815da, version 1.3.0 kept, main's dependency bumps kept); datatrak-service DT-21555-guest-pass-service-fields 2a5d599 → 25e94b6 (onto main 2bceef1, three additive conflicts in the flag constants, yml and test kept on both sides); BFF jest 70 suites / 759 passed / 2 skipped, build clean, lint has one error on main fixed separately; datatrak-service :dtWar:test BUILD SUCCESSFUL, 663 tests, 0 failures; CI green on both new heads; backups backup/sprint-0005-pre-rebase and backup/DT-21555-pre-rebase kept locally; lint fix on fix/payPage-import-order e2abbbf (not pushed)"
     summary: "G1 implemented behind two club-targetable flags default off: datatrak-service draft PR #591 (prospectLiability + timezone on getClubDefaultExternal.spr, NEW club-scoped guestPassItems.spr; off = main SQL/binds/bodies byte-pinned; ORA-00904 self-heal); datatrak draft PR #6800 onto Chancy's branch auditing PK's same-day gating (MO_guest_day_pass_DT-21555) with SQL goldens and three fixes; BFF PR #112 on the v4.1 names with the six-cell matrix, strict timezone/item-type validation and the dtFields observation; runbook R0–R7/P0–P7 with stop rules; no merge, no script, no flag flip, no live read. Blocked: local Gradle in both DT repos (Artifactory/VPN) — CI was the compile; D7 pending by precondition."

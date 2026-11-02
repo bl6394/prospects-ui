@@ -14,7 +14,7 @@
 | 0002 | Design v1.2 parity, consent, Pay Page embed, email OTP for every buyer, prospect-wallet save | **Not verified on `main`** (see below) | Marked done in ledger; evidence on `main` is missing |
 | 0003 | Selectable 1/3/5-day passes, QR and receipt by email, login-free "View your pass" page | UI #525 (2026-09-17), BFF #99 (2026-09-17) | Done. Live email and hosted capture unverified |
 | 0004 | Guest Pass v1: catalog-flagged single-visit passes from DataTrak, create → pay → deactivate, standalone Guest Pass host | UI #532 (2026-09-18), BFF #107 (2026-09-18), helm #3090 | Done in mock. Live DataTrak read not run |
-| 0005 | Guest-pass fields through the DataTrak service layer, every production DB dependency behind a flag (default off) | datatrak #6643 and #6800 (2026-10-20). datatrak-service #591: draft. BFF #112: open | Implementation done; live read pending |
+| 0005 | Guest-pass fields through the DataTrak service layer, every production DB dependency behind a flag (default off) | datatrak #6643 and #6800 (2026-10-20). datatrak-service #591: open, ready for review. BFF #112 and #121: open | Implementation done; awaiting review; live read pending |
 
 ---
 
@@ -60,14 +60,16 @@ Planned scope: Design v1.2 parity, §4.5 consent, Pay Page embed, email OTP for 
 - datatrak #6800 (flag-gating audit, SQL goldens for the off path) merged to `feat/NOJIRA-guest-pass-email`, which is an ancestor of `main`.
 - Every new production DB column and statement is behind `MO_guest_day_pass_DT-21555` (M&O) or `datatrak-service-DT-21555-guest-pass-fields` (service). Both default off.
 
-**Open:**
-- datatrak-service #591: draft. CI, Endor and Sonar green on `25e94b6`. Rebased onto `main` on 2026-10-22. Needs owner review and to be marked ready.
-- online-join-bff #112: open, CI, Endor and Sonar green on `54083ba`. Blocked on review (rlankit, deepthi-rachumallu, djaynarayan, paulobrien109 requested).
-- online-join-bff #121: lint fix for `main` (one `import/order` error from #120). CI running. Review requested.
+**Open (as of 2026-11-02):**
+- datatrak-service #591: out of draft, head `086ec67`. CI, Endor and Sonar green. Reviewers requested: mithrandr, bgfaulk. No reviews yet.
+  - Circuit review of the previous head (`943c368`) raised two issues: the flag-off path ran a database query before the flag check, and a failed VPD lookup returned a 500. Both are fixed in `086ec67`, with tests.
+  - Circuit has not re-reviewed `086ec67` yet.
+- online-join-bff #112: head `bc79e91`, rebased onto `main` on 2026-11-02 with main's dependency bumps kept (version 1.3.0). CI, Endor, Sonar and the flag scan green. Reviewers requested: rlankit, deepthi-rachumallu, djaynarayan, paulobrien109. No reviews yet. Circuit rated it Medium risk.
+- online-join-bff #121: lint fix for `main` (one `import/order` error from #120). Head `d1c2ed2` (includes the repo's automatic version bump to 1.2.18). Sonar and flag scan green; CI / Build and Endor were still running at last check. Reviewers requested: the same four as #112. No reviews yet.
 
 **Test evidence:**
-- datatrak-service `:dtWar:test`: 663 tests, 0 failures (local, 2026-10-22).
-- online-join-bff: 70 suites, 759 passed, 2 skipped; build clean (2026-10-22).
+- datatrak-service `:dtWar:test` on `086ec67`: 687 tests, 0 failures (local, 2026-11-02).
+- online-join-bff on `bc79e91`: 70 suites, 759 passed, 2 skipped; build clean (local, 2026-11-02). Lint has one error on `main`, which #121 fixes.
 
 ---
 
@@ -78,8 +80,8 @@ Planned scope: Design v1.2 parity, §4.5 consent, Pay Page embed, email OTP for 
 | Live DataTrak catalog read in dev (runbook R0–R5) | Sprint 0005 team | Confirm dev flag states and DBA scripts with Chancey Toombs and Paul Knuth. Message sent 2026-10-22, no reply yet |
 | Set `STP_DATATRAK_SERVICE_URL` and auth in the BFF secret | Platform | — |
 | Helm `STP_CATALOG_SOURCE=datatrak` in dev (D7, BL-2) | Platform | Needs signed helm PR after live read |
-| Review and merge #112, #121 | Reviewers above | Review |
-| Mark #591 ready and review | datatrak-service owner | — |
+| Review and merge #112, #121 | Reviewers above | Review. Review requests posted as PR comments on 2026-11-02 |
+| Review and merge #591 | mithrandr, bgfaulk | Review. Circuit re-review of `086ec67` not yet seen |
 | Sprint 0002 verification on `main` | Sprint 0002 owner | See gap above |
 | Production release | Bjorn Loftis | Approval |
 

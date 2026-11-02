@@ -2,7 +2,7 @@
 
 **As of:** 2026-11-02 · **Covers:** Sprints 0001–0005 · **Source of truth:** `docs/sprints/ledger.yaml`, checked against GitHub PR states on 2026-11-02
 
-**Production status:** nothing from Sprints 0001–0005 has been released to production. Dev and mock environments only. Production push needs approval (requested with Paul Knuth on 2026-10-15).
+**Production status:** code is deployed to production, but the feature is not on. The release pipeline deployed datatrak-service `4988e45` (Sprint 0005, #591, v4.247.0) to dev, staging, beta and prod on 2026-11-02, and online-join-bff `333b8e1` (Sprint 0005, #112, v1.3.0) to dev, staging, beta and prod the same day. Datatrak `744008c` (v4.741.0) reached prod on 2026-10-30. Guest-pass behaviour stays off: the datatrak-service flag `datatrak-service-DT-21555-guest-pass-fields` was created in LaunchDarkly (project `ignite-mo`) on 2026-11-02 and is off in every environment. The M&O flag shows no production environment settings. Sprints 0001–0004 are not verified in production. The feature's production release still needs approval (requested with Paul Knuth on 2026-10-15).
 
 ---
 
@@ -14,7 +14,7 @@
 | 0002 | Design v1.2 parity, consent, Pay Page embed, email OTP for every buyer, prospect-wallet save | **Not verified on `main`** (see below) | Marked done in ledger; evidence on `main` is missing |
 | 0003 | Selectable 1/3/5-day passes, QR and receipt by email, login-free "View your pass" page | UI #525 (2026-09-17), BFF #99 (2026-09-17) | Done. Live email and hosted capture unverified |
 | 0004 | Guest Pass v1: catalog-flagged single-visit passes from DataTrak, create → pay → deactivate, standalone Guest Pass host | UI #532 (2026-09-18), BFF #107 (2026-09-18), helm #3090 | Done in mock. Live DataTrak read not run |
-| 0005 | Guest-pass fields through the DataTrak service layer, every production DB dependency behind a flag (default off) | datatrak #6643 and #6800 (2026-10-20). datatrak-service #591 (2026-11-02, squash `4988e45`). BFF #112 (2026-11-02, `333b8e1`). BFF #121 closed unmerged (its lint fix is in #112) | Merged to `main`; live DataTrak read pending |
+| 0005 | Guest-pass fields through the DataTrak service layer, every production DB dependency behind a flag (default off) | datatrak #6643 and #6800 (2026-10-20). datatrak-service #591 (2026-11-02, squash `4988e45`). BFF #112 (2026-11-02, `333b8e1`). BFF #121 closed unmerged (its lint fix is in #112) | Merged to `main` and deployed to prod with flags off; live DataTrak read pending |
 
 ---
 
@@ -60,6 +60,8 @@ Planned scope: Design v1.2 parity, §4.5 consent, Pay Page embed, email OTP for 
 - datatrak #6800 (flag-gating audit, SQL goldens for the off path) merged to `feat/NOJIRA-guest-pass-email`, which is an ancestor of `main`.
 - Every new production DB column and statement is behind `MO_guest_day_pass_DT-21555` (M&O) or `datatrak-service-DT-21555-guest-pass-fields` (service). Both default off.
 
+**Deployed 2026-11-02 (all of dev, staging, beta, prod; flags off):** datatrak-service v4.247.0 (`4988e45`), online-join-bff v1.3.0 (`333b8e1`).
+
 **Merged 2026-11-02:**
 - datatrak-service #591 merged by mithrandr as squash `4988e45` (PR head `086ec67`). Approved by mithrandr. Circuit's two findings on `943c368` (a database query before the flag check; a failed VPD lookup returning a 500) were fixed in `086ec67`, with tests. bgfaulk was still listed as a requested reviewer at merge.
 - online-join-bff #112 merged by mithrandr as `333b8e1` (PR head `7d4f3a5`). Approved by mithrandr and paulobrien109. Version 1.3.0. The `import/order` lint fix from #121 was folded into #112.
@@ -79,6 +81,8 @@ Planned scope: Design v1.2 parity, §4.5 consent, Pay Page embed, email OTP for 
 | Set `STP_DATATRAK_SERVICE_URL` and auth in the BFF secret | Platform | — |
 | Helm `STP_CATALOG_SOURCE=datatrak` in dev (D7, BL-2) | Platform | Needs signed helm PR after live read |
 | Sprint 0002 verification on `main` | Sprint 0002 owner | See gap above |
+| Set the owner of `datatrak-service-DT-21555-guest-pass-fields` (created 2026-11-02, off in every environment; maintainer is Bjorn Loftis until changed) | Platform, with Chancy / PK | Team owner to be named. Platform to confirm the project (`ignite-mo` chosen by analogy with the M&O flag) |
+| Confirm the Sprint 0005 DataTrak code on prod is inert (flags off) | Sprint 0005 team | Live read not run. Prod datatrak `744008c` and BFF `333b8e1` not yet checked against the flags |
 | Production release | Bjorn Loftis | Approval |
 
 ---
@@ -88,7 +92,7 @@ Planned scope: Design v1.2 parity, §4.5 consent, Pay Page embed, email OTP for 
 | Key | Where | Default | Purpose |
 |---|---|---|---|
 | `MO_guest_day_pass_DT-21555` | DataTrak (club) | Off | Guest-pass M&O fields and email |
-| `datatrak-service-DT-21555-guest-pass-fields` | datatrak-service (club) | Off | Guest-pass fields on club defaults and `guestPassItems.spr` |
+| `datatrak-service-DT-21555-guest-pass-fields` | datatrak-service (club) | Off in every environment (created 2026-11-02, project `ignite-mo`) | Guest-pass fields on club defaults and `guestPassItems.spr` |
 | `guest-pass-online` | LaunchDarkly (platform) | — | Guest-pass exposure in Online Join |
 | `STP_CATALOG_SOURCE` | helm / BFF env | — | `datatrak` switches the catalog read to DataTrak |
 

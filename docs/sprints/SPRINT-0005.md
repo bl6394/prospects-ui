@@ -331,7 +331,7 @@ Role slots: DTS (datatrak-service lane), DTM (datatrak gating lane), BFF, QA, SE
 | RQ-10 | Does PK prefer the local pair (if A2 passes) or a jar bump now? | PK | Pair ships; jar bump recorded as RQ-12 |
 | RQ-11 | Distinct `TZL_ABC_CODE` values in dev/prod | Chancy / Terry | Normalisation + alias map; unknown closes the club and is logged |
 | RQ-12 | Follow-up: add the two fields to `internal-interface` and bump both consumers | PK / middleware owner | Local pair remains |
-| RQ-13 | Which dev club gets the flagged test product and the liability text? | Chancy | Answered 2026-11-02: dev test club is `99921` (supplied by Bjorn; not yet confirmed by Chancy). R3/R4 flags not flipped. D7 pending |
+| RQ-13 | Which dev club gets the flagged test product and the liability text? | Chancy | Answered 2026-11-02: dev test club is `99921`, confirmed by Chancy. R3/R4 flags not flipped. D7 pending |
 | RQ-14 | Should M&O page reads also self-heal on a missing column? | Chancy + PK | Position: no — pages fail loudly; only the POS hook is wrapped |
 | RQ-15 | Must a guest-pass product be "available online" (`cgi_online='1'`) to be listed? | PRODUCT + Chancy | Position: yes; if products cannot carry it, the on-path drops the predicate for `cgi_service='0'` rows and uses `SAI_GUEST_PASS='1'` |
 | RQ-16 | Measured LD propagation and drain bound for R7 | PLATFORM + DT | No schema drop claimed verified |

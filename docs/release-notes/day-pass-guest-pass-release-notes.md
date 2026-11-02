@@ -81,7 +81,7 @@ Planned scope: Design v1.2 parity, §4.5 consent, Pay Page embed, email OTP for 
 | Set `STP_DATATRAK_SERVICE_URL` and auth in the BFF secret | Platform | — |
 | Helm `STP_CATALOG_SOURCE=datatrak` in dev (D7, BL-2) | Platform | Needs signed helm PR after live read |
 | Sprint 0002 verification on `main` | Sprint 0002 owner | See gap above |
-| Set the owner of `datatrak-service-DT-21555-guest-pass-fields` (created 2026-11-02, off in every environment; maintainer is Bjorn Loftis until changed) | Platform, with Chancy / PK | Team owner to be named. Platform to confirm the project (`ignite-mo` chosen by analogy with the M&O flag) |
+| Name the owner of `datatrak-service-DT-21555-guest-pass-fields` (created 2026-11-02, off in every environment; maintainer set to Paul Knuth as an individual on 2026-11-02, to move to Chancey once they join LaunchDarkly) | Platform, with Chancy / PK | Chancey is not a LaunchDarkly member yet; no team owner chosen. Platform to confirm the project (`ignite-mo` chosen by analogy with the M&O flag) |
 | Confirm the Sprint 0005 DataTrak code on prod is inert (flags off) | Sprint 0005 team | Live read not run. Prod datatrak `744008c` and BFF `333b8e1` not yet checked against the flags |
 | Production release | Bjorn Loftis | Approval |
 
